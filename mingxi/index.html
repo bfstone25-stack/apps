@@ -47,4 +47,4 @@ async function ask() {
 }
 function fb(s) { fetch(window.APP_API + "/mingxi/feedback", {method: "POST",
   headers: {"Content-Type": "application/json"}, body: JSON.stringify({score: s})}); alert("Thanks!"); }
-</script></body></html>
+</script><script>try{fetch(window.APP_API+"/scout/api/visit?app_=mingxi&src="+(new URLSearchParams(location.search).get("src")||"")+"&ref="+encodeURIComponent(document.referrer))}catch(e){}</script></body></html>
