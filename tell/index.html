@@ -1,0 +1,128 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>破绽 TELL</title><script src="config.js"></script>
+<style>
+:root{--bg:#0b0c0e;--card:#15171c;--line:#2b2f38;--red:#c0392b;--amber:#d4a24e;--txt:#dcdcd6;--dim:#8a8f9a}
+*{box-sizing:border-box}body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',Georgia,serif;
+max-width:600px;margin:0 auto;padding:14px;background:var(--bg);color:var(--txt);min-height:100vh}
+.top{display:flex;justify-content:space-between;align-items:center}
+h1{font-size:1.25em;margin:4px 0;letter-spacing:2px}.lang{background:none;border:1px solid var(--line);color:var(--dim);border-radius:5px;padding:3px 9px;cursor:pointer}
+.day{color:var(--amber);font-size:.8em;letter-spacing:2px}
+.file{background:var(--card);border:1px solid var(--line);border-left:3px solid var(--red);border-radius:8px;padding:12px;margin:10px 0;font-size:.95em;line-height:1.55}
+.file b{color:var(--red)}
+.tabs{display:flex;gap:6px;margin:10px 0}
+.tab{flex:1;background:var(--card);border:1px solid var(--line);border-radius:8px;padding:9px 4px;text-align:center;cursor:pointer;font-size:.9em}
+.tab.on{border-color:var(--amber);background:#1e2027}
+.tab .nm{font-weight:700}.tab .rl{color:var(--dim);font-size:.78em;display:block}
+#chat{min-height:120px;margin:8px 0}
+.msg{margin:7px 0;padding:8px 12px;border-radius:12px;max-width:85%;line-height:1.5;white-space:pre-wrap;font-size:.95em}
+.me{background:#243247;margin-left:auto;border-bottom-right-radius:3px}
+.them{background:#1c1f26;border-bottom-left-radius:3px}
+.who{font-size:.72em;color:var(--amber);margin:8px 0 -2px 2px}
+.inrow{display:flex;gap:7px;margin-top:8px}
+#inp{flex:1;background:#1c1f26;border:1px solid var(--line);color:var(--txt);border-radius:18px;padding:10px 14px;font-size:1em;font-family:inherit}
+#send{background:var(--amber);border:0;border-radius:18px;padding:0 15px;font-weight:700;cursor:pointer}
+#send:disabled{opacity:.4}
+.bar{display:flex;justify-content:space-between;align-items:center;margin-top:8px;color:var(--dim);font-size:.85em}
+.accuse{width:100%;margin-top:12px;background:var(--red);color:#fff;border:0;border-radius:9px;padding:12px;font-size:1em;font-weight:700;cursor:pointer;letter-spacing:1px}
+.end{text-align:center;padding:22px 10px}.end h2{letter-spacing:1px}
+.grid{font-size:1.5em;letter-spacing:2px;margin:10px 0}
+.share{background:var(--amber);border:0;color:#1a1400;border-radius:9px;padding:11px 22px;font-weight:700;cursor:pointer;font-size:1em}
+.hint{color:#555;font-size:.78em;text-align:center;margin-top:14px}
+</style></head><body>
+<div class="top"><div><span class="day" id="day"></span><h1>破绽 · TELL</h1></div><button class="lang" onclick="toggleLang()">中/EN</button></div>
+<div class="file" id="file">…</div>
+<div class="tabs" id="tabs"></div>
+<div class="who" id="who"></div>
+<div id="chat"></div>
+<div id="area">
+  <div class="inrow"><input id="inp" placeholder=""><button id="send" onclick="send()">➤</button></div>
+  <div class="bar"><span id="budget"></span></div>
+  <button class="accuse" id="accuseBtn" onclick="openAccuse()"></button>
+</div>
+<div class="hint" id="hint"></div>
+<script>
+const API = window.TELL_API || window.APP_API || "";
+let lang = navigator.language.startsWith("zh") ? "zh" : "en";
+let S=null, cur=null, convos={}, qUsed=0, done=false;
+const T={
+ en:{ph:"Ask a question…",who:n=>`Interrogating: ${n}`,budget:(u,b)=>`${u}/${b} questions used`,
+   accuse:"⚖ Make an accusation",victim:"Victim",whoDunit:"Who is the murderer?",
+   solved:n=>`${n} solved today`,cancel:"cancel",
+   win:"Case Closed",lose:"Wrong. The killer walked free.",
+   winsub:(n,p)=>`Solved in ${n} question${n>1?"s":""}${p!=null?` · top ${p}% today`:""}`,
+   truth:c=>`The killer was ${c}.`,share:"Share result",copied:"Copied! Paste anywhere.",you:"You"},
+ zh:{ph:"审讯提问…",who:n=>`正在审讯：${n}`,budget:(u,b)=>`已用 ${u}/${b} 次提问`,
+   accuse:"⚖ 指认凶手",victim:"死者",whoDunit:"谁是凶手？",
+   solved:n=>`今日${n}人破案`,cancel:"取消",
+   win:"结案",lose:"指认错误，凶手逍遥法外。",
+   winsub:(n,p)=>`用 ${n} 次提问破案${p!=null?` · 今日前${p}%`:""}`,
+   truth:c=>`真凶是 ${c}。`,share:"分享战绩",copied:"已复制！粘贴到任何地方。",you:"你"}};
+function tr(){return T[lang]}
+async function load(){
+ S=await (await fetch(API+"/state?lang="+lang)).json();
+ document.getElementById("day").textContent="CASE "+S.day+" · DAY "+S.day;
+ document.getElementById("file").innerHTML=`<b>${S.title}</b><br>${S.setup}<br><span style="color:#8a8f9a">${tr().victim}: ${S.victim} · ${tr().solved(S.solved_today)}</span>`;
+ document.getElementById("tabs").innerHTML=S.suspects.map(s=>
+   `<div class="tab" id="tab-${s.id}" onclick="pick('${s.id}')"><span class="nm">${s.name}</span><span class="rl">${s.role}</span></div>`).join("");
+ document.getElementById("inp").placeholder=tr().ph;
+ document.getElementById("accuseBtn").textContent=tr().accuse;
+ if(!cur) cur=S.suspects[0].id;
+ S.suspects.forEach(s=>{if(!convos[s.id])convos[s.id]=[]});
+ pick(cur);
+}
+function pick(id){
+ cur=id;
+ S.suspects.forEach(s=>document.getElementById("tab-"+s.id).classList.toggle("on",s.id===id));
+ const nm=S.suspects.find(s=>s.id===id).name;
+ document.getElementById("who").textContent=tr().who(nm);
+ render();
+}
+function render(){
+ document.getElementById("chat").innerHTML=(convos[cur]||[]).map(m=>
+   `<div class="msg ${m.role==="user"?"me":"them"}">${esc(m.content)}</div>`).join("");
+ document.getElementById("budget").textContent=tr().budget(qUsed,S.budget);
+ window.scrollTo(0,document.body.scrollHeight);
+}
+function esc(s){return s.replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))}
+async function send(){
+ if(done||qUsed>=S.budget) return;
+ const inp=document.getElementById("inp"), msg=inp.value.trim(); if(!msg) return;
+ inp.value=""; document.getElementById("send").disabled=true;
+ convos[cur].push({role:"user",content:msg}); qUsed++; render();
+ convos[cur].push({role:"assistant",content:"…"}); render();
+ try{
+   const r=await (await fetch(API+"/ask",{method:"POST",headers:{"Content-Type":"application/json"},
+     body:JSON.stringify({suspect:cur,history:convos[cur].slice(0,-2),message:msg,lang:lang})})).json();
+   convos[cur].pop(); convos[cur].push({role:"assistant",content:r.reply||"…"});
+ }catch(e){ convos[cur].pop(); convos[cur].push({role:"assistant",content:"(connection error)"}); }
+ render();
+ document.getElementById("send").disabled=false;
+ if(qUsed>=S.budget){ document.getElementById("inp").disabled=true; document.getElementById("send").disabled=true; }
+}
+function openAccuse(){
+ if(done) return;
+ const opts=S.suspects.map(s=>`<button class="accuse" style="background:#1c1f26;border:1px solid var(--line);color:var(--txt);margin-top:8px" onclick="accuse('${s.id}')">${s.name} · ${s.role}</button>`).join("");
+ document.getElementById("area").innerHTML=`<div style="text-align:center;margin:10px 0;font-weight:700">${tr().whoDunit}</div>${opts}
+   <div style="text-align:center;margin-top:10px"><a href="#" onclick="load();return false" style="color:var(--dim)">${tr().cancel}</a></div>`;
+}
+async function accuse(id){
+ done=true;
+ const r=await (await fetch(API+"/accuse",{method:"POST",headers:{"Content-Type":"application/json"},
+   body:JSON.stringify({suspect:id,questions:qUsed,lang:lang,pid:pid()})})).json();
+ let pct=null; if(r.correct){try{const p=await (await fetch(API+"/percentile?questions="+qUsed)).json(); pct=p.percentile;}catch(e){}}
+ const grid=r.correct?("🔍".repeat(Math.max(qUsed,1))+"✅"):"❌";
+ document.getElementById("area").innerHTML=
+  `<div class="end"><h2 style="color:${r.correct?'var(--amber)':'var(--red)'}">${r.correct?tr().win:tr().lose}</h2>
+   <div style="color:var(--dim);margin:8px 0">${tr().truth(r.culprit_name)}<br><span style="font-size:.9em">${r.reveal}</span></div>
+   ${r.correct?`<div>${tr().winsub(qUsed,pct)}</div><div class="grid">${grid}</div>
+   <button class="share" onclick="share(${qUsed},'${grid}')">${tr().share}</button>`:``}</div>`;
+}
+function share(n,grid){
+ const txt=`破绽 TELL · Case ${S.day}\n${S.title}\n${grid}  ${lang==="zh"?n+"问破案":n+" questions"}\n${location.href.split("?")[0]}`;
+ navigator.clipboard.writeText(txt); alert(tr().copied);
+}
+function pid(){let p=localStorage.getItem("tell_pid"); if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36); localStorage.setItem("tell_pid",p);} return p;}
+function toggleLang(){lang=lang==="zh"?"en":"zh"; if(!done) load();}
+document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")send();});
+load();
+</script></body></html>
