@@ -1,0 +1,51 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>VisaCheck · 签途审计</title><script src="config.js"></script>
+<style>
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:720px;margin:0 auto;padding:24px;background:#fafaf7;color:#222}
+h1{font-size:1.6em;margin-bottom:4px} .tag{color:#777;margin-bottom:20px}
+label{display:block;margin:14px 0 4px;font-weight:600;font-size:.92em}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1em;box-sizing:border-box;background:#fff}
+button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#2c3e50;color:#fff;font-size:1.05em;cursor:pointer}
+button:disabled{opacity:.5} #out{white-space:pre-wrap;background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;margin-top:20px;min-height:40px;line-height:1.65}
+.langbtn{float:right;background:none;border:1px solid #ccc;border-radius:6px;width:auto;padding:4px 10px;margin:0;color:#555;font-size:.85em}
+.fb{margin-top:10px;text-align:center;color:#999} .fb span{cursor:pointer;font-size:1.4em;margin:0 6px}
+</style></head><body>
+<button class="langbtn" onclick="toggleLang()">中/EN</button>
+<h1>VisaCheck <small style="color:#999">签途审计</small></h1>
+<div class="tag" id="tag">Pre-submission audit for US immigration paperwork</div>
+<label>visatype</label><select id="visatype"><option>H-1B</option><option>OPT/STEM OPT</option><option>EB-1/NIW</option><option>EB-2/EB-3 PERM</option><option>I-485 AOS</option><option>F-1</option><option>O-1</option></select>
+<label>doctype</label><select id="doctype"><option>Recommendation letter 推荐信</option><option>Personal statement 个人陈述</option><option>Form data 表格信息</option><option>Employer letter 雇主信</option><option>Timeline 时间线</option></select>
+<label>Paste your draft / form data 粘贴草稿或表格关键信息</label><textarea id="content" rows="7"></textarea>
+<button id="go" onclick="ask()">Generate · 生成</button>
+<div id="out"></div>
+<div class="fb">Helpful? <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+<script>
+let lang = navigator.language.startsWith("zh") ? "Chinese" : "English";
+function toggleLang() { lang = lang === "Chinese" ? "English" : "Chinese";
+  document.getElementById("tag").textContent = lang === "Chinese" ? "美国移民材料提交前纠错与RFE风险审计" : "Pre-submission audit for US immigration paperwork"; }
+if (lang === "Chinese") document.getElementById("tag").textContent = "美国移民材料提交前纠错与RFE风险审计";
+async function ask() {
+  const btn = document.getElementById("go"), out = document.getElementById("out");
+  btn.disabled = true; out.textContent = "…";
+  try {
+    const resp = await fetch(window.APP_API + "/visacheck/ask_stream", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({payload: {visatype: document.getElementById("visatype").value,doctype: document.getElementById("doctype").value,content: document.getElementById("content").value}, lang: lang})});
+    out.textContent = "";
+    const rd = resp.body.getReader(), dec = new TextDecoder(); let buf = "";
+    while (true) {
+      const {done, value} = await rd.read(); if (done) break;
+      buf += dec.decode(value, {stream: true});
+      let i; while ((i = buf.indexOf("\n\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
+        if (!line.startsWith("data: ")) continue;
+        const d = JSON.parse(line.slice(6));
+        if (d.token) out.textContent += d.token;
+      }
+    }
+  } catch (e) { out.textContent = "Error: " + e; }
+  btn.disabled = false;
+}
+function fb(s) { fetch(window.APP_API + "/visacheck/feedback", {method: "POST",
+  headers: {"Content-Type": "application/json"}, body: JSON.stringify({score: s})}); alert("Thanks!"); }
+</script></body></html>

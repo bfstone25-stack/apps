@@ -1,0 +1,50 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>MingXi 明析 · 明析</title><script src="config.js"></script>
+<style>
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:720px;margin:0 auto;padding:24px;background:#fafaf7;color:#222}
+h1{font-size:1.6em;margin-bottom:4px} .tag{color:#777;margin-bottom:20px}
+label{display:block;margin:14px 0 4px;font-weight:600;font-size:.92em}
+input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1em;box-sizing:border-box;background:#fff}
+button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#2c3e50;color:#fff;font-size:1.05em;cursor:pointer}
+button:disabled{opacity:.5} #out{white-space:pre-wrap;background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;margin-top:20px;min-height:40px;line-height:1.65}
+.langbtn{float:right;background:none;border:1px solid #ccc;border-radius:6px;width:auto;padding:4px 10px;margin:0;color:#555;font-size:.85em}
+.fb{margin-top:10px;text-align:center;color:#999} .fb span{cursor:pointer;font-size:1.4em;margin:0 6px}
+</style></head><body>
+<button class="langbtn" onclick="toggleLang()">中/EN</button>
+<h1>MingXi 明析 <small style="color:#999">明析</small></h1>
+<div class="tag" id="tag">Eastern wisdom for modern crossroads — meaning, not fortune-telling</div>
+<label>Birth date & hour (optional) 生辰(可选, e.g. 1995-03-14 卯时)</label><input id="birth" type="text">
+<label>What's on your mind? 你在纠结什么?</label><textarea id="concern" rows="7"></textarea>
+<button id="go" onclick="ask()">Generate · 生成</button>
+<div id="out"></div>
+<div class="fb">Helpful? <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+<script>
+let lang = navigator.language.startsWith("zh") ? "Chinese" : "English";
+function toggleLang() { lang = lang === "Chinese" ? "English" : "Chinese";
+  document.getElementById("tag").textContent = lang === "Chinese" ? "用八字/易经的框架安放焦虑——意义建构,不算吉凶" : "Eastern wisdom for modern crossroads — meaning, not fortune-telling"; }
+if (lang === "Chinese") document.getElementById("tag").textContent = "用八字/易经的框架安放焦虑——意义建构,不算吉凶";
+async function ask() {
+  const btn = document.getElementById("go"), out = document.getElementById("out");
+  btn.disabled = true; out.textContent = "…";
+  try {
+    const resp = await fetch(window.APP_API + "/mingxi/ask_stream", {method: "POST",
+      headers: {"Content-Type": "application/json"},
+      body: JSON.stringify({payload: {birth: document.getElementById("birth").value,concern: document.getElementById("concern").value}, lang: lang})});
+    out.textContent = "";
+    const rd = resp.body.getReader(), dec = new TextDecoder(); let buf = "";
+    while (true) {
+      const {done, value} = await rd.read(); if (done) break;
+      buf += dec.decode(value, {stream: true});
+      let i; while ((i = buf.indexOf("\n\n")) >= 0) {
+        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
+        if (!line.startsWith("data: ")) continue;
+        const d = JSON.parse(line.slice(6));
+        if (d.token) out.textContent += d.token;
+      }
+    }
+  } catch (e) { out.textContent = "Error: " + e; }
+  btn.disabled = false;
+}
+function fb(s) { fetch(window.APP_API + "/mingxi/feedback", {method: "POST",
+  headers: {"Content-Type": "application/json"}, body: JSON.stringify({score: s})}); alert("Thanks!"); }
+</script></body></html>
