@@ -1,0 +1,192 @@
+<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>归一 · FOLD</title>
+<style>
+:root{--bg:#12141a;--panel:#1b1e27;--line:#2a2e3a;--txt:#e8e6df;--gold:#e0b356;--dim:#8a8f9c;--cell:#232733}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
+html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,'PingFang SC','Segoe UI',sans-serif;background:var(--bg);color:var(--txt)}
+#app{position:fixed;inset:0;max-width:520px;margin:0 auto;display:flex;flex-direction:column;padding:16px}
+.top{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px}
+h1{font-size:1.5em;margin:0;letter-spacing:6px;font-weight:800}
+h1 small{font-size:.42em;letter-spacing:3px;color:var(--gold);font-weight:600;display:block;margin-top:2px}
+.lang{background:none;border:1px solid var(--line);color:var(--dim);border-radius:18px;padding:5px 12px;font-size:.78em;cursor:pointer}
+.hud{display:flex;justify-content:space-between;align-items:center;margin:10px 2px}
+.goal{font-size:.95em}.goal b{color:var(--gold);font-size:1.15em}
+.moves{font-family:ui-monospace,monospace;color:var(--dim);font-size:.9em}
+.lvlname{text-align:center;color:var(--dim);font-size:.82em;letter-spacing:2px;margin-bottom:6px}
+#board{position:relative;background:var(--panel);border-radius:16px;padding:10px;margin:0 auto;touch-action:none;box-shadow:0 14px 40px rgba(0,0,0,.35)}
+.cell{position:absolute;border-radius:11px;background:var(--cell)}
+.wall{position:absolute;border-radius:11px;background:repeating-linear-gradient(45deg,#2c313d,#2c313d 6px,#262a34 6px,#262a34 12px)}
+.tile{position:absolute;border-radius:11px;display:flex;align-items:center;justify-content:center;font-weight:800;
+  transition:transform .13s cubic-bezier(.3,.9,.4,1);will-change:transform;z-index:5}
+.tile.merged{animation:pop .2s ease}
+@keyframes pop{0%{transform:scale(1)}50%{transform:scale(1.18)}100%{transform:scale(1)}}
+.tile.spawned{animation:sp .18s ease}
+@keyframes sp{from{transform:scale(.3);opacity:0}}
+.btns{display:flex;gap:10px;margin-top:16px;justify-content:center}
+.btn{flex:1;max-width:150px;background:var(--panel);border:1px solid var(--line);color:var(--txt);border-radius:12px;padding:12px;font-size:.95em;cursor:pointer;transition:.12s}
+.btn:active{transform:scale(.96)}.btn.gold{background:linear-gradient(180deg,#e6bd63,#d09a3c);border:0;color:#2a1c04;font-weight:700}
+.hint{text-align:center;color:#5b6070;font-size:.76em;margin-top:14px;line-height:1.5}
+.levels{display:flex;gap:6px;justify-content:center;flex-wrap:wrap;margin-top:10px}
+.lv{width:34px;height:34px;border-radius:9px;background:var(--panel);border:1px solid var(--line);display:flex;align-items:center;justify-content:center;font-size:.85em;cursor:pointer;color:var(--dim)}
+.lv.done{border-color:var(--gold);color:var(--gold)}.lv.cur{background:var(--gold);color:#2a1c04;border:0;font-weight:700}
+.overlay{position:absolute;inset:0;z-index:20;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;
+  background:radial-gradient(circle at 50% 40%,rgba(40,34,18,.9),rgba(0,0,0,.9));border-radius:16px}
+.overlay h2{font-size:2em;color:var(--gold);letter-spacing:2px;margin:0 0 6px}
+.stars{font-size:1.8em;margin:8px 0}
+.support{margin-top:26px;padding:12px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--dim);font-size:.78em;line-height:1.6}
+.support b{color:var(--gold)}
+</style></head><body>
+<div id="app">
+  <div class="top"><h1>归一<small>FOLD</small></h1><button class="lang" onclick="toggleLang()">中/EN</button></div>
+  <div class="lvlname" id="lvlname"></div>
+  <div class="hud"><div class="goal" id="goal"></div><div class="moves" id="moves"></div></div>
+  <div id="boardWrap" style="position:relative"><div id="board"></div>
+    <div class="overlay" id="win"></div>
+  </div>
+  <div class="btns">
+    <button class="btn" onclick="undo()" id="undoBtn">↶ <span id="undoT">撤销</span></button>
+    <button class="btn" onclick="reset()"><span id="resetT">重来</span></button>
+  </div>
+  <div class="levels" id="levels"></div>
+  <div class="hint" id="hint"></div>
+  <div class="support" id="support"></div>
+</div>
+<script>
+// ---------- 关卡(手工设计,确定性;后续RL无限生成) ----------
+// grid: 行数组; 数字=初始块值, 'x'=墙, 0=空. target=归一目标值. par=满星步数.
+const LEVELS = [
+ {name:"入门 / Warmup", target:4, par:1, grid:[[2,2]]},
+ {name:"折返 / Corner", target:8, par:2, grid:[[2,2,0],[0,2,2]]},
+ {name:"夹墙 / Walls", target:8, par:2, grid:[[2,'x',2],[2,0,2]]},
+ {name:"四合 / Fourfold", target:8, par:2, grid:[[2,2],[2,2]]},
+ {name:"孤岛 / Island", target:16, par:2, grid:[[4,0,4],[0,0,0],[4,0,4]]},
+ {name:"八合 / Octet", target:32, par:3, grid:[[4,4,4,4],[0,0,0,0],[4,4,4,4]]},
+ {name:"阶梯 / Ladder", target:16, par:5, grid:[[2,2,2],[2,0,2],[2,2,2]]},
+ {name:"迷宫 / Maze", target:16, par:5, grid:[[2,2,'x',4],[0,'x',0,4],[2,2,'x',0],['x',0,0,0]]},
+];
+const PAL={2:'#3c4657',4:'#4a5a7a',8:'#5b7bba',16:'#c98a3e',32:'#d9a63f',64:'#e0b356',128:'#e6c674',256:'#efd98f'};
+let L=0, R, C, cells, walls, tiles, moves, hist, done, lang=navigator.language.startsWith('zh')?'zh':'en';
+const T={zh:{goal:t=>`目标 归一至 <b>${t}</b>`,moves:m=>`第 ${m} 步`,undo:"撤销",reset:"重来",
+  hint:"滑动或方向键 · 同值合并 · 把所有数字归并成唯一目标块",win:"归 一",
+  next:"下一关",retry:"再来",stars:s=>["","一星","两星","满星"][s],
+  support:'永久免费 · <b>永不广告</b><br>喜欢的话，将来一次「支持者」解锁皮肤与无限关卡',
+  parhint:s=>`满星 ${s} 步`},
+ en:{goal:t=>`Fold everything into <b>${t}</b>`,moves:m=>`Move ${m}`,undo:"Undo",reset:"Reset",
+  hint:"Swipe or arrows · equal tiles merge · fold all into one target tile",win:"UNITY",
+  next:"Next",retry:"Retry",stars:s=>["","1 star","2 stars","3 stars"][s],
+  support:'Free forever · <b>No ads, ever</b><br>Love it? A one-time Supporter unlock later — skins & endless levels',
+  parhint:s=>`${s} moves for 3★`}};
+function tr(){return T[lang]}
+function load(l){
+ L=l; const lv=LEVELS[l]; R=lv.grid.length; C=Math.max(...lv.grid.map(r=>r.length));
+ cells=[]; walls=[]; tiles=[]; let id=0;
+ for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+   const v=lv.grid[r][c];
+   if(v==='x') walls.push({r,c});
+   else if(typeof v==='number'&&v>0) tiles.push({id:id++,r,c,v,merged:false,spawned:false});
+ }
+ moves=0; hist=[]; done=false;
+ document.getElementById('lvlname').textContent=lv.name;
+ document.getElementById('win').style.display='none';
+ layout(); render(); renderLevels(); syncText();
+ localStorage.setItem('fold_cur',l);
+}
+let CS, GAP=8;
+function layout(){
+ const wrap=document.getElementById('app').clientWidth-32;
+ const bw=Math.min(wrap, 420);
+ CS=Math.floor((bw-20-GAP*(C-1))/C);
+ const b=document.getElementById('board');
+ b.style.width=(CS*C+GAP*(C-1)+20)+'px'; b.style.height=(CS*R+GAP*(R-1)+20)+'px';
+ b.innerHTML='';
+ for(let r=0;r<R;r++)for(let c=0;c<C;c++){
+   const d=document.createElement('div'); d.className='cell';
+   d.style.cssText+=`width:${CS}px;height:${CS}px;left:${px(c)}px;top:${px(r)}px`;
+   b.appendChild(d);
+ }
+ walls.forEach(w=>{const d=document.createElement('div');d.className='wall';
+   d.style.cssText+=`width:${CS}px;height:${CS}px;left:${px(w.c)}px;top:${px(w.r)}px`;b.appendChild(d);});
+}
+function px(i){return 10+i*(CS+GAP)}
+function fontFor(v){return Math.max(14, CS*0.42 - String(v).length*2)}
+function render(){
+ const b=document.getElementById('board');
+ [...b.querySelectorAll('.tile')].forEach(e=>e.remove());
+ tiles.forEach(t=>{
+   const d=document.createElement('div');
+   d.className='tile'+(t.merged?' merged':'')+(t.spawned?' spawned':'');
+   d.style.cssText+=`width:${CS}px;height:${CS}px;font-size:${fontFor(t.v)}px;background:${PAL[t.v]||'#efd98f'};`+
+     `color:${t.v<=8?'#dfe6f0':'#241a06'};transform:translate(${px(t.c)}px,${px(t.r)}px)`;
+   d.textContent=t.v; b.appendChild(d);
+   t.merged=false; t.spawned=false;
+ });
+}
+function isWall(r,c){return walls.some(w=>w.r===r&&w.c===c)}
+function tileAt(r,c,arr){return arr.find(t=>t.r===r&&t.c===c)}
+function move(dr,dc){
+ if(done) return;
+ const snap=JSON.stringify(tiles.map(t=>({id:t.id,r:t.r,c:t.c,v:t.v})));
+ const order=[...tiles].sort((a,b)=>((b.r-a.r)*dr+(b.c-a.c)*dc));
+ let moved=false; const mergedIds=new Set();
+ for(const t of order){
+   let r=t.r,c=t.c;
+   while(true){
+     const nr=r+dr,nc=c+dc;
+     if(nr<0||nr>=R||nc<0||nc>=C||isWall(nr,nc)) break;
+     const occ=tileAt(nr,nc,tiles);
+     if(!occ){ r=nr;c=nc; continue; }
+     if(occ.v===t.v && !mergedIds.has(occ.id) && occ.id!==t.id){
+       occ.v*=2; occ.merged=true; mergedIds.add(occ.id);
+       tiles=tiles.filter(x=>x.id!==t.id); moved=true;
+     }
+     break;
+   }
+   if((r!==t.r||c!==t.c)){ t.r=r;t.c=c; moved=true; }
+ }
+ if(moved){ hist.push(snap); moves++; render(); syncText(); checkWin(); }
+}
+function checkWin(){
+ if(tiles.length===1 && tiles[0].v===LEVELS[L].target){
+   done=true; const par=LEVELS[L].par;
+   const stars = moves<=par?3 : moves<=par+2?2 : 1;
+   const doneLv=JSON.parse(localStorage.getItem('fold_done')||'{}');
+   doneLv[L]=Math.max(doneLv[L]||0,stars); localStorage.setItem('fold_done',JSON.stringify(doneLv));
+   const w=document.getElementById('win'); w.style.display='flex';
+   const next=L<LEVELS.length-1;
+   w.innerHTML=`<h2>${tr().win}</h2><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+     <div style="color:#c9b78a">${tr().moves(moves)} · ${tr().parhint(par)}</div>
+     <div class="btns" style="margin-top:22px">
+       <button class="btn" onclick="load(${L})">${tr().retry}</button>
+       ${next?`<button class="btn gold" onclick="load(${L+1})">${tr().next} →</button>`:''}</div>`;
+   renderLevels();
+ }
+}
+function undo(){ if(done||!hist.length) return; const s=JSON.parse(hist.pop());
+ tiles=s.map(o=>({...o,merged:false,spawned:false})); moves=Math.max(0,moves-1); render(); syncText(); }
+function reset(){ load(L); }
+function renderLevels(){
+ const doneLv=JSON.parse(localStorage.getItem('fold_done')||'{}');
+ document.getElementById('levels').innerHTML=LEVELS.map((_,i)=>
+   `<div class="lv ${i===L?'cur':''} ${doneLv[i]?'done':''}" onclick="load(${i})">${i+1}</div>`).join('');
+}
+function syncText(){
+ document.getElementById('goal').innerHTML=tr().goal(LEVELS[L].target);
+ document.getElementById('moves').textContent=tr().moves(moves);
+ document.getElementById('undoT').textContent=tr().undo;
+ document.getElementById('resetT').textContent=tr().reset;
+ document.getElementById('hint').textContent=tr().hint;
+ document.getElementById('support').innerHTML=tr().support;
+}
+function toggleLang(){lang=lang==='zh'?'en':'zh'; syncText(); renderLevels(); if(done)checkWin();}
+// controls
+document.addEventListener('keydown',e=>{const k={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
+ if(k){e.preventDefault();move(k[0],k[1]);}});
+let sx,sy;
+const bw=document.getElementById('boardWrap');
+bw.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
+bw.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
+ if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
+ if(Math.abs(dx)>Math.abs(dy))move(0,dx>0?1:-1);else move(dy>0?1:-1,0);sx=null},{passive:true});
+window.addEventListener('resize',()=>{layout();render();});
+load(parseInt(localStorage.getItem('fold_cur')||'0')||0);
+</script></body></html>
