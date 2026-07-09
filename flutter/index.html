@@ -40,10 +40,10 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,'PingFa
 
 /* 立绘 */
 .stage{position:relative;z-index:4;flex:1;display:flex;align-items:center;justify-content:center;min-height:0}
-.portrait{width:150px;height:150px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:4.6em;
-  background:radial-gradient(circle at 40% 35%,rgba(255,255,255,.9),rgba(255,255,255,.25));
-  box-shadow:0 0 0 6px rgba(255,255,255,.35),0 0 40px 6px var(--accent),0 14px 40px rgba(0,0,0,.18);
-  animation:bob 4s ease-in-out infinite}
+.portrait{width:210px;height:290px;border-radius:22px;display:flex;align-items:center;justify-content:center;font-size:4.6em;
+  background-color:rgba(255,255,255,.25);background-size:cover;background-position:top center;
+  box-shadow:0 0 0 4px rgba(255,255,255,.4),0 0 44px 6px var(--accent),0 16px 44px rgba(0,0,0,.28);
+  animation:bob 4.5s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(0)}50%{transform:translateY(-10px)}}
 .pet{position:absolute;bottom:6px;left:14px;z-index:4;font-size:2em;animation:bob 3.4s ease-in-out infinite}
 
@@ -114,7 +114,7 @@ async function boot(){
  document.getElementById("cards").innerHTML=R.routes.map(r=>{
    const g=`hsl(${r.hue},70%,92%)`,g2=`hsl(${r.hue},75%,84%)`;
    return `<div class="card" style="background:linear-gradient(135deg,${g},${g2})" onclick="startRoute('${r.id}')">
-     <div class="por" style="background:radial-gradient(circle at 40% 35%,#fff,${r.accent}55)">${r.emoji}</div>
+     <div class="por" style="background-image:url('portraits/${r.id}.jpg');background-size:cover;background-position:top center"></div>
      <div><div class="nm" style="color:${r.accent}">${r.name}</div>
        <div class="ti">${r.title}</div><div class="tg">${r.tag}</div></div></div>`;}).join("");
 }
@@ -138,7 +138,7 @@ function startRoute(id){
  sc.innerHTML=`<div class="glow" style="width:60%;height:30%;top:8%;left:-10%;background:${route.accent}"></div>
    <div class="glow" style="width:50%;height:28%;bottom:12%;right:-8%;background:hsl(${route.hue},80%,75%);animation-delay:-3s"></div>`;
  petals(route.hue);
- document.getElementById("portrait").textContent=route.emoji;
+ {const _p=document.getElementById("portrait");_p.textContent="";_p.style.backgroundImage="url('portraits/"+route.id+".jpg')";}
  document.getElementById("pet").textContent=R.pet.emoji;
  document.getElementById("cname").textContent=route.name;
  document.getElementById("afflab").textContent=tr().aff;
