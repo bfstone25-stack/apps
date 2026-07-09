@@ -1,5 +1,10 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>归一 · FOLD</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#12141a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{--bg:#12141a;--panel:#1b1e27;--line:#2a2e3a;--txt:#e8e6df;--gold:#e0b356;--dim:#8a8f9c;--cell:#232733}
 *{box-sizing:border-box;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none}
@@ -68,12 +73,12 @@ const PAL={2:'#3c4657',4:'#4a5a7a',8:'#5b7bba',16:'#c98a3e',32:'#d9a63f',64:'#e0
 let L=0, R, C, cells, walls, tiles, moves, hist, done, lang=navigator.language.startsWith('zh')?'zh':'en';
 const T={zh:{goal:t=>`目标 归一至 <b>${t}</b>`,moves:m=>`第 ${m} 步`,undo:"撤销",reset:"重来",
   hint:"滑动或方向键 · 同值合并 · 把所有数字归并成唯一目标块",win:"归 一",
-  next:"下一关",retry:"再来",stars:s=>["","一星","两星","满星"][s],
+  next:"下一关",retry:"再来",share:"晒战绩",stars:s=>["","一星","两星","满星"][s],
   support:'永久免费 · <b>永不广告</b><br>喜欢的话，将来一次「支持者」解锁皮肤与无限关卡',
   parhint:s=>`满星 ${s} 步`},
  en:{goal:t=>`Fold everything into <b>${t}</b>`,moves:m=>`Move ${m}`,undo:"Undo",reset:"Reset",
   hint:"Swipe or arrows · equal tiles merge · fold all into one target tile",win:"UNITY",
-  next:"Next",retry:"Retry",stars:s=>["","1 star","2 stars","3 stars"][s],
+  next:"Next",retry:"Retry",share:"Share",stars:s=>["","1 star","2 stars","3 stars"][s],
   support:'Free forever · <b>No ads, ever</b><br>Love it? A one-time Supporter unlock later — skins & endless levels',
   parhint:s=>`${s} moves for 3★`}};
 function tr(){return T[lang]}
@@ -157,7 +162,8 @@ function checkWin(){
      <div style="color:#c9b78a">${tr().moves(moves)} · ${tr().parhint(par)}</div>
      <div class="btns" style="margin-top:22px">
        <button class="btn" onclick="load(${L})">${tr().retry}</button>
-       ${next?`<button class="btn gold" onclick="load(${L+1})">${tr().next} →</button>`:''}</div>`;
+       ${next?`<button class="btn gold" onclick="load(${L+1})">${tr().next} →</button>`:''}</div>
+     <button class="btn" style="margin-top:12px;max-width:200px" onclick="share(${stars},${moves})">🔗 ${tr().share}</button>`;
    renderLevels();
  }
 }
@@ -177,7 +183,18 @@ function syncText(){
  document.getElementById('hint').textContent=tr().hint;
  document.getElementById('support').innerHTML=tr().support;
 }
+function share(stars,mv){
+ const lv=LEVELS[L], nm=lv.name.split(' / ')[lang==='zh'?0:1]||lv.name;
+ const grid='🟦'.repeat(0)+'🟩'.repeat(stars)+'⬛'.repeat(3-stars);
+ const txt=(lang==='zh'
+   ? `归一 FOLD · ${nm}\n${'★'.repeat(stars)}${'☆'.repeat(3-stars)}  ${mv}步归一\n`
+   : `FOLD · ${nm}\n${'★'.repeat(stars)}${'☆'.repeat(3-stars)}  solved in ${mv}\n`)
+   + 'bfstone25-stack.github.io/apps/fold/';
+ if(navigator.share){navigator.share({text:txt}).catch(()=>{});}
+ else{navigator.clipboard.writeText(txt);alert(lang==='zh'?'战绩已复制，去炫耀吧！':'Result copied — go flex!');}
+}
 function toggleLang(){lang=lang==='zh'?'en':'zh'; syncText(); renderLevels(); if(done)checkWin();}
+if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch(()=>{});}
 // controls
 document.addEventListener('keydown',e=>{const k={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
  if(k){e.preventDefault();move(k[0],k[1]);}});
