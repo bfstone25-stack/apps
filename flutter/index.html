@@ -169,9 +169,13 @@ function typeLine(txt){
  typing=setInterval(()=>{i++;el.innerHTML=txt.slice(0,i).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))+(i<txt.length?cur:"");
    if(i>=txt.length)clearInterval(typing);},26);
 }
-function exprFor(a){return a>=70?'_love':a>=40?'_blush':a>=15?'_smile':'';}
+function exprFor(a){return a>=15?'_love':a>=8?'_blush':a>=3?'_smile':'';}
+let lastExpr=null;
 function updatePortrait(){const p=document.getElementById('portrait');
- p.style.backgroundImage="url('portraits/"+route.id+exprFor(aff)+".jpg')";}
+ const e=exprFor(aff);
+ if(lastExpr!==null&&e!==lastExpr){p.style.transition='box-shadow .35s';p.style.boxShadow='0 0 0 6px rgba(255,255,255,.55),0 0 70px 14px var(--accent),0 16px 44px rgba(0,0,0,.28)';setTimeout(()=>{p.style.boxShadow='';},700);}
+ lastExpr=e;
+ p.style.backgroundImage="url('portraits/"+route.id+e+".jpg')";}
 function updateAff(anim){ if(route) updatePortrait();
  document.getElementById("fill").style.width=aff+"%";
  document.getElementById("affpct").textContent=aff+"%";
