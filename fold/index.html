@@ -68,7 +68,7 @@ h1 small{font-size:.42em;letter-spacing:3px;color:var(--gold);font-weight:600;di
 <script>
 // ---------- 关卡(手工设计,确定性;后续RL无限生成) ----------
 // grid: 行数组; 数字=初始块值, 'x'=墙, 0=空. target=归一目标值. par=满星步数.
-const LEVELS = [
+let LEVELS = [
  {name:"入门 / Warmup", target:4, par:1, grid:[[2,2]]},
  {name:"折返 / Corner", target:8, par:2, grid:[[2,2,0],[0,2,2]]},
  {name:"夹墙 / Walls", target:8, par:2, grid:[[2,'x',2],[2,0,2]]},
@@ -216,5 +216,5 @@ bw.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[
  if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
  if(Math.abs(dx)>Math.abs(dy))move(0,dx>0?1:-1);else move(dy>0?1:-1,0);sx=null},{passive:true});
 window.addEventListener('resize',()=>{layout();render();});
-load(parseInt(localStorage.getItem('fold_cur')||'0')||0);
+fetch('levels.json').then(r=>r.json()).then(d=>{if(Array.isArray(d)&&d.length){LEVELS=d;}}).catch(()=>{}).finally(()=>load(Math.min(parseInt(localStorage.getItem('fold_cur')||'0')||0, LEVELS.length-1)));
 </script></body></html>
