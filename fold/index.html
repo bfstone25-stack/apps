@@ -79,6 +79,8 @@ const LEVELS = [
  {name:"迷宫 / Maze", target:16, par:5, grid:[[2,2,'x',4],[0,'x',0,4],[2,2,'x',0],['x',0,0,0]]},
 ];
 const PAL={2:'#3c4657',4:'#4a5a7a',8:'#5b7bba',16:'#c98a3e',32:'#d9a63f',64:'#e0b356',128:'#e6c674',256:'#efd98f'};
+let COACH={}; fetch('coach_tips.json').then(r=>r.json()).then(d=>COACH=d).catch(()=>{});
+function coachTier(par){return par<=3?'easy':par<=6?'medium':par<=9?'hard':'expert';}
 let L=0, R, C, cells, walls, tiles, moves, hist, done, lang=navigator.language.startsWith('zh')?'zh':'en';
 const T={zh:{goal:t=>`目标 归一至 <b>${t}</b>`,moves:m=>`第 ${m} 步`,undo:"撤销",reset:"重来",
   hint:"滑动或方向键 · 同值合并 · 把所有数字归并成唯一目标块",win:"归 一",
@@ -167,7 +169,7 @@ function checkWin(){
    doneLv[L]=Math.max(doneLv[L]||0,stars); localStorage.setItem('fold_done',JSON.stringify(doneLv));
    const w=document.getElementById('win'); w.style.display='flex';
    const next=L<LEVELS.length-1;
-   w.innerHTML=`<h2>${tr().win}</h2><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>
+   w.innerHTML=`<h2>${tr().win}</h2><div class="stars">${'★'.repeat(stars)}${'☆'.repeat(3-stars)}</div>\n     ${(COACH[coachTier(par)]&&COACH[coachTier(par)].length)?`<div style="color:#c9b78a;font-size:.9em;max-width:280px;margin:8px auto;line-height:1.5">\u201c${COACH[coachTier(par)][Math.floor(Math.random()*COACH[coachTier(par)].length)]}\u201d</div>`:``}
      <div style="color:#c9b78a">${tr().moves(moves)} · ${tr().parhint(par)}</div>
      <div class="btns" style="margin-top:22px">
        <button class="btn" onclick="load(${L})">${tr().retry}</button>
