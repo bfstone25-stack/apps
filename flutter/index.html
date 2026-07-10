@@ -138,7 +138,7 @@ function startRoute(id){
  sc.innerHTML=`<div class="glow" style="width:60%;height:30%;top:8%;left:-10%;background:${route.accent}"></div>
    <div class="glow" style="width:50%;height:28%;bottom:12%;right:-8%;background:hsl(${route.hue},80%,75%);animation-delay:-3s"></div>`;
  petals(route.hue);
- {const _p=document.getElementById("portrait");_p.textContent="";_p.style.backgroundImage="url('portraits/"+route.id+".jpg')";}
+ {const _p=document.getElementById("portrait");_p.textContent="";updatePortrait();}
  document.getElementById("pet").textContent=R.pet.emoji;
  document.getElementById("cname").textContent=route.name;
  document.getElementById("afflab").textContent=tr().aff;
@@ -169,7 +169,10 @@ function typeLine(txt){
  typing=setInterval(()=>{i++;el.innerHTML=txt.slice(0,i).replace(/[&<>]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[c]))+(i<txt.length?cur:"");
    if(i>=txt.length)clearInterval(typing);},26);
 }
-function updateAff(anim){
+function exprFor(a){return a>=70?'_love':a>=40?'_blush':a>=15?'_smile':'';}
+function updatePortrait(){const p=document.getElementById('portrait');
+ p.style.backgroundImage="url('portraits/"+route.id+exprFor(aff)+".jpg')";}
+function updateAff(anim){ if(route) updatePortrait();
  document.getElementById("fill").style.width=aff+"%";
  document.getElementById("affpct").textContent=aff+"%";
 }
