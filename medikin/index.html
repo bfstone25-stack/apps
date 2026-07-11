@@ -10,34 +10,46 @@ html{scroll-behavior:smooth}
 body{font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;margin:0;color:var(--ink);-webkit-font-smoothing:antialiased;
 background:var(--mint);background-image:radial-gradient(1100px 480px at 85% -8%,rgba(20,105,94,.06),transparent 60%),radial-gradient(900px 420px at -10% 8%,rgba(224,120,86,.05),transparent 55%)}
 .serif{font-family:Georgia,'Times New Roman','Songti SC',serif}
-/* ── 吸顶毛玻璃栏 ── */
-.bar{position:sticky;top:0;z-index:40;background:rgba(13,79,71,.9);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
-color:#e8f2ef;padding:13px 24px;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid rgba(224,120,86,.3)}
-.bar .wm{font-family:Georgia,serif;font-size:1.2em;letter-spacing:2.5px;font-weight:700}
-.bar .wm i{color:var(--coral);font-style:normal}
-.bar .cn{font-size:.82em;color:#9dc4bc;letter-spacing:4px}
-.bar .langbtn{margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(157,196,188,.35);border-radius:999px;padding:5px 15px;color:#c8ded8;font-size:.8em;cursor:pointer;transition:all .18s ease}
-.bar .langbtn:hover{border-color:var(--coral);color:#fff;background:rgba(224,120,86,.18)}
-/* ── 主体 ── */
-.wrap{max-width:780px;margin:0 auto;padding:52px 22px 72px}
-@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
-.wrap>*{animation:fadeUp .55s cubic-bezier(.2,.7,.3,1) both}
-.wrap>*:nth-child(2){animation-delay:.06s}.wrap>*:nth-child(3){animation-delay:.12s}
-.wrap>*:nth-child(4){animation-delay:.18s}.wrap>*:nth-child(5){animation-delay:.22s}
-.wrap>*:nth-child(6){animation-delay:.26s}.wrap>*:nth-child(7){animation-delay:.3s}
-.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(20,105,94,.35);background:rgba(20,105,94,.07);color:var(--teal);
-border-radius:999px;padding:5px 14px;font-size:.74em;font-weight:700;letter-spacing:2px;margin-bottom:18px}
-.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral)}
-h1{font-family:Georgia,'Songti SC',serif;font-size:clamp(1.9em,4.6vw,2.55em);line-height:1.22;letter-spacing:-.4px;margin:0 0 14px;color:var(--teal2)}
-.sub{color:var(--dim);font-size:1.05em;line-height:1.7;margin-bottom:22px;max-width:620px}
-.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:38px}
-.chip{border:1px solid var(--line);background:rgba(252,254,253,.85);border-radius:999px;padding:7px 16px;font-size:.82em;color:#4a5f5a;box-shadow:var(--sh-sm);transition:all .18s ease}
+/* ── 双栏问诊台布局 ── */
+.desk{max-width:1180px;margin:0 auto;padding:44px 26px 80px;display:grid;grid-template-columns:340px 1fr;gap:56px;align-items:start}
+@media(max-width:920px){.desk{grid-template-columns:1fr;gap:34px;padding:28px 18px 64px}}
+/* ── 左栏 · 固定信息轨 ── */
+.rail{position:sticky;top:36px;border-radius:20px;padding:34px 30px 26px;overflow:hidden;
+background:linear-gradient(168deg,rgba(20,105,94,.085) 0%,rgba(20,105,94,.035) 46%,rgba(224,120,86,.045) 100%);
+border:1px solid rgba(20,105,94,.14);box-shadow:var(--sh-sm)}
+@media(max-width:920px){.rail{position:static}}
+.rail .wm{font-family:Georgia,'Songti SC',serif;font-size:2em;letter-spacing:3px;font-weight:700;color:var(--teal2);line-height:1.1}
+.rail .wm i{color:var(--coral);font-style:normal}
+.rail .cn{display:block;margin-top:6px;font-size:.86em;color:var(--teal);letter-spacing:6px}
+.rail .langbtn{margin-top:16px;background:rgba(255,255,255,.6);border:1px solid rgba(20,105,94,.3);border-radius:999px;padding:5px 15px;color:var(--teal2);font-size:.8em;cursor:pointer;transition:all .18s ease}
+.rail .langbtn:hover{border-color:var(--coral);color:var(--coral2);background:rgba(224,120,86,.1)}
+.rail .mission{margin-top:22px;color:#3f5651;font-size:.93em;line-height:1.75}
+.trustcol{margin-top:24px;display:flex;flex-direction:column;gap:10px}
+.chip{border:1px solid var(--line);background:rgba(252,254,253,.85);border-radius:12px;padding:10px 14px;font-size:.82em;color:#4a5f5a;box-shadow:var(--sh-sm);transition:all .18s ease}
 .chip:hover{transform:translateY(-1px);box-shadow:var(--sh-md);border-color:rgba(224,120,86,.45)}
 .chip b{color:var(--teal)}
+.rail-art{margin:26px auto 0;display:block;width:82%;color:var(--teal);opacity:.55;pointer-events:none}
+.rail .foot{margin-top:20px;border-top:1px solid rgba(20,105,94,.15);padding-top:14px;color:#8fa39d;font-size:.74em;line-height:1.7}
+/* ── 水印(心电线+圆角十字,移入左栏底部装饰) ── */
+.rail .wm-art{position:absolute;bottom:-24px;right:-30px;width:180px;height:180px;opacity:.05;pointer-events:none;color:var(--teal2);z-index:-1;animation:none!important}
+.rail .ecg-art{position:absolute;bottom:8px;left:-8px;right:-8px;height:56px;opacity:.07;pointer-events:none;color:var(--teal);z-index:-1;animation:none!important}
+/* ── 右栏 · 问诊工作流 ── */
+.flow{min-width:0}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.flow>*{animation:fadeUp .55s cubic-bezier(.2,.7,.3,1) both}
+.flow>*:nth-child(2){animation-delay:.06s}.flow>*:nth-child(3){animation-delay:.12s}
+.flow>*:nth-child(4){animation-delay:.18s}.flow>*:nth-child(5){animation-delay:.22s}
+.flow>*:nth-child(6){animation-delay:.26s}.flow>*:nth-child(7){animation-delay:.3s}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(20,105,94,.35);background:rgba(20,105,94,.07);color:var(--teal);
+border-radius:999px;padding:5px 14px;font-size:.74em;font-weight:700;letter-spacing:2px;margin-bottom:16px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral)}
+h1{font-family:Georgia,'Songti SC',serif;font-size:clamp(1.7em,3.4vw,2.25em);line-height:1.22;letter-spacing:-.4px;margin:0 0 12px;color:var(--teal2)}
+.sub{color:var(--dim);font-size:1.02em;line-height:1.7;margin-bottom:8px;max-width:620px}
 /* ── 步骤 ── */
 .step{display:flex;gap:14px;margin:30px 0 12px;align-items:baseline}
 .step .no{font-family:Georgia,serif;color:var(--coral);font-size:1.2em;font-weight:700;min-width:34px}
 .step .st{font-weight:700;font-size:1.04em;color:var(--teal2);letter-spacing:.2px}
+.step .ic{width:17px;height:17px;stroke:var(--teal);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-right:2px}
 .card{background:rgba(252,254,253,.92);border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:var(--sh-md);transition:box-shadow .25s ease}
 label{display:block;margin:16px 0 7px;font-weight:600;font-size:.88em;color:#33504a;letter-spacing:.2px}
 label:first-child{margin-top:0}
@@ -45,8 +57,17 @@ input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line
 select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2363746f' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
 select:focus,textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:var(--ring)}
 textarea{resize:vertical;line-height:1.6}
-.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
-@media(max-width:560px){.row{grid-template-columns:1fr}}
+/* ── 家庭成员头像片 avatar chips ── */
+.avrow{display:flex;gap:14px;flex-wrap:wrap;margin:4px 0 6px}
+.av{display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer;border:0;background:none;padding:0;font-family:inherit}
+.av .face{width:56px;height:56px;border-radius:50%;background:#fff;border:2px solid var(--line);display:flex;align-items:center;justify-content:center;box-shadow:var(--sh-sm);transition:all .18s ease}
+.av .face svg{width:34px;height:34px;stroke:var(--dim);fill:none;stroke-width:1.6;stroke-linecap:round;stroke-linejoin:round;transition:stroke .18s ease}
+.av .tag{font-size:.78em;color:var(--dim);letter-spacing:.3px;transition:color .18s ease}
+.av:hover .face{transform:translateY(-2px);box-shadow:var(--sh-md);border-color:rgba(224,120,86,.5)}
+.av.sel .face{border-color:var(--teal);background:rgba(20,105,94,.08);box-shadow:var(--ring)}
+.av.sel .face svg{stroke:var(--teal)}
+.av.sel .tag{color:var(--teal2);font-weight:700}
+.row{display:grid;grid-template-columns:1fr;gap:16px}
 button.go{margin-top:24px;width:100%;padding:16px;border:0;border-radius:12px;background:linear-gradient(180deg,#177567,var(--teal2));color:#eefaf6;font-size:1.05em;letter-spacing:1.5px;cursor:pointer;font-weight:700;box-shadow:0 2px 6px rgba(13,79,71,.3),inset 0 1px 0 rgba(255,255,255,.1);transition:all .18s ease}
 button.go:hover{transform:translateY(-1.5px);box-shadow:0 6px 18px rgba(13,79,71,.32),0 2px 8px rgba(224,120,86,.28),inset 0 1px 0 rgba(255,255,255,.12)}
 button.go:active{transform:translateY(0) scale(.995)}
@@ -58,88 +79,125 @@ button.go:disabled{opacity:.55;cursor:wait;transform:none}
 .rhead .coral{color:var(--coral)}
 #out{white-space:pre-wrap;padding:22px 24px;line-height:1.8;font-size:.97em;min-height:60px}
 .cursor::after{content:"▋";color:var(--coral);animation:bl 1s infinite}@keyframes bl{50%{opacity:0}}
-/* ── 反馈/页脚 ── */
+/* ── 反馈 ── */
 .fb{margin-top:16px;text-align:center;color:var(--dim);font-size:.9em}
 .fb span{cursor:pointer;font-size:1.35em;margin:0 8px;display:inline-block;transition:transform .15s ease}
 .fb span:hover{transform:scale(1.25)}
-
-/* ── 背景水印(心电图线+圆角十字) ── */
-.wrap{position:relative}
-.hero-art{position:absolute;top:26px;right:-20px;width:280px;height:280px;opacity:.04;pointer-events:none;color:var(--teal2);z-index:-1;animation:none!important}
-.ecg-art{position:absolute;top:170px;left:-10px;right:-10px;height:80px;opacity:.05;pointer-events:none;color:var(--teal);z-index:-1;animation:none!important}
-@media(max-width:820px){.hero-art{width:190px;right:-40px;opacity:.035}}
-.step .ic{width:17px;height:17px;stroke:var(--teal);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-right:2px}
-.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:18px;color:#8fa39d;font-size:.78em;line-height:1.75;text-align:center;max-width:640px;margin-left:auto;margin-right:auto}
 </style></head><body>
-<div class="bar"><span class="wm">MEDI<i>KIN</i></span><span class="cn">家医管家</span>
-<button class="langbtn" onclick="toggleLang()">中 / EN</button></div>
-<div class="wrap">
-<svg class="hero-art" viewBox="0 0 200 200" aria-hidden="true">
- <rect x="70" y="30" width="60" height="140" rx="18" fill="currentColor"/>
- <rect x="30" y="70" width="140" height="60" rx="18" fill="currentColor"/>
-</svg>
-<svg class="ecg-art" viewBox="0 0 760 80" preserveAspectRatio="none" aria-hidden="true">
- <path d="M0 44 H210 l14 -10 14 10 H300 l10 -30 12 56 10 -46 8 20 H520 l14 -8 14 8 H760" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-</svg>
-  <div class="eyebrow" id="eyebrow"></div>
-  <h1 id="h1"></h1>
-  <div class="sub" id="sub"></div>
-  <div class="chips" id="chips"></div>
+<div class="desk">
 
-  <div class="step"><span class="no">01</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><span id="s1"></span></span></div>
-  <div class="card">
-    <div class="row">
-      <div><label id="lb1"></label><input id="member" type="text"></div>
-      <div><label id="lb2"></label><select id="dockind"><option>Medical bill 账单</option><option>Lab report 化验单</option><option>Insurance EOB 保险说明</option><option>Doctor's note 医嘱</option><option>Medication 用药</option></select></div>
+  <!-- ══ 左栏 · 固定信息轨 ══ -->
+  <aside class="rail">
+    <svg class="wm-art" viewBox="0 0 200 200" aria-hidden="true">
+     <rect x="70" y="30" width="60" height="140" rx="18" fill="currentColor"/>
+     <rect x="30" y="70" width="140" height="60" rx="18" fill="currentColor"/>
+    </svg>
+    <svg class="ecg-art" viewBox="0 0 760 80" preserveAspectRatio="none" aria-hidden="true">
+     <path d="M0 44 H210 l14 -10 14 10 H300 l10 -30 12 56 10 -46 8 20 H520 l14 -8 14 8 H760" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+    <div class="wm">MEDI<i>·KIN</i><span class="cn">家 医 管 家</span></div>
+    <button class="langbtn" onclick="toggleLang()">中 / EN</button>
+    <p class="mission" id="mission"></p>
+    <div class="trustcol" id="chips"></div>
+    <!-- 内联SVG小插画:全家人剪影,青色细线风 -->
+    <svg class="rail-art" viewBox="0 0 240 110" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round">
+      <!-- dad -->
+      <circle cx="52" cy="34" r="13"/><path d="M32 96 v-22 a20 20 0 0 1 40 0 v22"/>
+      <!-- mom -->
+      <circle cx="102" cy="40" r="11"/><path d="M85 96 v-18 a17 17 0 0 1 34 0 v18"/>
+      <!-- child -->
+      <circle cx="143" cy="56" r="8"/><path d="M131 96 v-11 a12 12 0 0 1 24 0 v11"/>
+      <!-- grandparent with cane -->
+      <circle cx="188" cy="42" r="11"/><path d="M171 96 v-17 a17 17 0 0 1 34 0 v17"/><path d="M212 66 v30"/>
+      <!-- ground + heart -->
+      <path d="M20 100 H222"/>
+      <path d="M118 12 c3 -6 12 -5 12 2 c0 5 -12 11 -12 11 c0 0 -12 -6 -12 -11 c0 -7 9 -8 12 -2z" stroke="#e07856"/>
+    </svg>
+    <div class="foot" id="foot"></div>
+  </aside>
+
+  <!-- ══ 右栏 · 问诊工作流 ══ -->
+  <main class="flow">
+    <div class="eyebrow" id="eyebrow"></div>
+    <h1 id="h1"></h1>
+    <div class="sub" id="sub"></div>
+
+    <div class="step"><span class="no">01</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><span id="s1"></span></span></div>
+    <div class="card">
+      <label id="lb1"></label>
+      <div class="avrow" id="avrow"></div>
+      <input id="member" type="hidden">
+      <label id="lb2"></label><select id="dockind"><option>Medical bill 账单</option><option>Lab report 化验单</option><option>Insurance EOB 保险说明</option><option>Doctor's note 医嘱</option><option>Medication 用药</option></select>
     </div>
-  </div>
 
-  <div class="step"><span class="no">02</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span id="s2"></span></span></div>
-  <div class="card">
-    <label id="lb3"></label>
-    <textarea id="content" rows="8"></textarea>
-    <label id="lb4"></label>
-    <input id="question" type="text">
-    <button id="go" class="go" onclick="ask()"></button>
-  </div>
+    <div class="step"><span class="no">02</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span id="s2"></span></span></div>
+    <div class="card">
+      <label id="lb3"></label>
+      <textarea id="content" rows="8"></textarea>
+      <label id="lb4"></label>
+      <input id="question" type="text">
+      <button id="go" class="go" onclick="ask()"></button>
+    </div>
 
-  <div class="report" id="report">
-    <div class="rhead"><span id="rt"></span><span class="coral serif">MK</span></div>
-    <div id="out"></div>
-  </div>
-  <div class="fb" id="fbrow" style="display:none"><span id="fbq"></span> <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+    <div class="report" id="report">
+      <div class="rhead"><span id="rt"></span><span class="coral serif">MK</span></div>
+      <div id="out"></div>
+    </div>
+    <div class="fb" id="fbrow" style="display:none"><span id="fbq"></span> <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+  </main>
 
-  <div class="foot" id="foot"></div>
 </div>
 <script>
 let lang = navigator.language.startsWith("zh") ? "Chinese" : "English";
+/* 头像chip定义:key为写入#member的value(双语,两种语言下一致,后端payload稳定) */
+const MEMBERS=[
+ {key:"自己 Self",   zh:"自己", en:"Self",
+  svg:'<circle cx="12" cy="8" r="4"/><path d="M4 21v-1a8 8 0 0 1 16 0v1"/>'},
+ {key:"父母 Parent", zh:"父母", en:"Parent",
+  svg:'<circle cx="9" cy="8" r="3.4"/><path d="M2.5 21v-1a6.5 6.5 0 0 1 13 0v1"/><circle cx="17.5" cy="9.5" r="2.6"/><path d="M13.5 21v-.6a5 5 0 0 1 8 0v.6"/>'},
+ {key:"配偶 Spouse", zh:"配偶", en:"Spouse",
+  svg:'<circle cx="12" cy="7.5" r="3.6"/><path d="M4.5 21v-1a7.5 7.5 0 0 1 15 0v1"/><path d="M12 13.5l1.4 1.4 1.4-1.4a1 1 0 0 0-1.4-1.5 1 1 0 0 0-1.4 1.5z" fill="currentColor" stroke="none"/>'},
+ {key:"孩子 Child",  zh:"孩子", en:"Child",
+  svg:'<circle cx="12" cy="10" r="3.2"/><path d="M6.5 21v-.8a5.5 5.5 0 0 1 11 0v.8"/><path d="M10 5.5c.5-1.5 3.5-1.5 4 0"/>'},
+ {key:"其他 Other",  zh:"其他", en:"Other",
+  svg:'<circle cx="12" cy="8" r="4" stroke-dasharray="2.5 2.5"/><path d="M4 21v-1a8 8 0 0 1 16 0v1" stroke-dasharray="2.5 2.5"/>'}
+];
+let memberKey = MEMBERS[0].key;
+function renderAvatars(){
+  const row=document.getElementById("avrow");
+  row.innerHTML=MEMBERS.map(m=>`<button type="button" class="av${m.key===memberKey?" sel":""}" data-key="${m.key}" onclick="pickMember('${m.key}')">
+    <span class="face"><svg viewBox="0 0 24 24">${m.svg}</svg></span>
+    <span class="tag">${lang==="Chinese"?m.zh:m.en}</span></button>`).join("");
+  document.getElementById("member").value=memberKey;
+}
+function pickMember(k){ memberKey=k; renderAvatars(); }
 const I18N = {
  Chinese: {
   eyebrow:"家庭健康助手 · FAMILY HEALTH COMPANION",
   h1:"看懂化验单，问对下一个问题。",
-  sub:"把医院报告、账单和症状说明翻译成家人能听懂的话，并告诉你哪些数值值得追问医生 —— 为替家人健康操心的你。",
+  sub:"把医院报告、账单和症状说明翻译成家人能听懂的话，并告诉你哪些数值值得追问医生。",
+  mission:"每个家庭里，总有一个人在替所有人的健康操心。MediKin 站在你这边：把看不懂的报告翻译成家常话，让你带着对的问题走进诊室。",
   chips:["<b>不存档</b> · 健康信息仅本次会话处理","<b>非诊断</b> · 助你问对医生","<b>中英双语</b> · 解读语言随你"],
   s1:"这是谁的、什么文件", s2:"粘贴文件内容",
-  lb1:"家庭成员（例：妈妈）", lb2:"文件类型", lb3:"粘贴报告/账单/说明的文字内容（仅用于本次解读，不会被保存）",
+  lb1:"这是谁的文件？", lb2:"文件类型", lb3:"粘贴报告/账单/说明的文字内容（仅用于本次解读，不会被保存）",
   lb4:"你想弄明白什么？（留空 = 帮我整体解读）",
   go:"生成解读", rt:"健 康 解 读 · HEALTH BRIEF", fbq:"这份解读有帮助吗？",
   ph:"例：把化验单上的项目和数值整段粘进来，看不懂的缩写也没关系……",
   phq:"例：这个偏高要紧吗？下次复诊该问医生什么？",
-  phm:"例：妈妈",
   foot:"MediKin 提供健康信息解读辅助，不构成医疗诊断或治疗建议（not medical advice）；如有急症请立即就医。你的健康信息仅在本次会话中处理，服务器不留存原文。"
  },
  English: {
   eyebrow:"FAMILY HEALTH COMPANION",
   h1:"Understand the report. Ask the right next question.",
   sub:"Turns medical reports, bills and symptom notes into plain language your family can understand — and tells you which numbers are worth asking the doctor about.",
+  mission:"In every family, someone quietly carries the worry for everyone's health. MediKin is on your side: it turns confusing reports into plain words, so you walk into the clinic with the right questions.",
   chips:["<b>Zero retention</b> · health info never stored","<b>Not a diagnosis</b> · helps you ask better questions","<b>Bilingual</b> · reads back in your language"],
   s1:"Whose document is this?", s2:"Paste the document",
-  lb1:"Family member (e.g. Mom)", lb2:"Document type", lb3:"Paste the report / bill / note text (used for this reading only, never stored)",
+  lb1:"Whose document is this?", lb2:"Document type", lb3:"Paste the report / bill / note text (used for this reading only, never stored)",
   lb4:"What do you want to understand? (leave blank = explain it all)",
   go:"Explain It", rt:"HEALTH BRIEF", fbq:"Was this explanation helpful?",
   ph:"e.g. paste the lab items and values as-is — unfamiliar abbreviations are fine…",
   phq:"e.g. Is this elevated value serious? What should we ask at the follow-up?",
-  phm:"e.g. Mom",
   foot:"MediKin provides help understanding health information; it is not medical diagnosis or treatment advice. For emergencies seek medical care immediately. Your health information is processed for this session only and never stored."
  }
 };
@@ -147,6 +205,7 @@ function render(){
   const t=I18N[lang];
   document.getElementById("eyebrow").textContent=t.eyebrow;
   h1.textContent=t.h1; sub.textContent=t.sub;
+  mission.textContent=t.mission;
   chips.innerHTML=t.chips.map(c=>`<span class="chip">${c}</span>`).join("");
   s1.textContent=t.s1; s2.textContent=t.s2;
   lb1.textContent=t.lb1; lb2.textContent=t.lb2; lb3.textContent=t.lb3; lb4.textContent=t.lb4;
@@ -154,7 +213,7 @@ function render(){
   rt.textContent=t.rt; fbq.textContent=t.fbq; foot.textContent=t.foot;
   document.getElementById("content").placeholder=t.ph;
   document.getElementById("question").placeholder=t.phq;
-  document.getElementById("member").placeholder=t.phm;
+  renderAvatars();
 }
 function toggleLang(){ lang = lang==="Chinese"?"English":"Chinese"; render(); }
 render();
