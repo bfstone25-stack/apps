@@ -237,13 +237,28 @@ bw.addEventListener('pointerdown',e=>{
  ptr={id:e.pointerId,sx:e.clientX,sy:e.clientY,fired:false};
  try{bw.setPointerCapture(e.pointerId);}catch(_){}
 });
+// 拖动时整个棋盘跟手微移(上限10px,主轴向): 视觉上明确"推的是整盘,不是单块"
+const bdEl=document.getElementById('board');
+function boardFollow(dx,dy){
+ if(!bdEl)return;
+ const cap=10, ax=Math.abs(dx)>Math.abs(dy);
+ const fx=ax?Math.max(-cap,Math.min(cap,dx/4)):0, fy=ax?0:Math.max(-cap,Math.min(cap,dy/4));
+ bdEl.style.transition='none'; bdEl.style.transform=`translate(${fx}px,${fy}px)`;
+}
+function boardSnap(){
+ if(!bdEl)return;
+ bdEl.style.transition='transform .16s cubic-bezier(.2,.7,.3,1)'; bdEl.style.transform='translate(0,0)';
+}
 bw.addEventListener('pointermove',e=>{
  if(!ptr||e.pointerId!==ptr.id||ptr.fired)return;
- if(fireSwipe(e.clientX-ptr.sx,e.clientY-ptr.sy)) ptr.fired=true;
+ const dx=e.clientX-ptr.sx, dy=e.clientY-ptr.sy;
+ boardFollow(dx,dy);
+ if(fireSwipe(dx,dy)){ ptr.fired=true; boardSnap(); }
 });
 function endPtr(e){
  if(!ptr||e.pointerId!==ptr.id)return;
  if(!ptr.fired) fireSwipe(e.clientX-ptr.sx,e.clientY-ptr.sy);
+ boardSnap();
  ptr=null;
  try{bw.releasePointerCapture(e.pointerId);}catch(_){}
 }
