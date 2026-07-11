@@ -1,0 +1,689 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<title>找师傅 ShiFu · 华人靠谱零工</title>
+<script src="config.js"></script>
+<style>
+:root{
+  --orange:#e8622c; --orange-dark:#c94f1f; --dark:#2b2e33; --bg:#faf8f5;
+  --card:#ffffff; --line:#e8e2da; --muted:#8a8478; --amber-bg:#fff6e5; --amber:#a8690a;
+  --green:#95ec69; --radius:14px;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{height:100%}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;
+  background:var(--bg);color:var(--dark);font-size:16px;line-height:1.5}
+button{font-family:inherit;cursor:pointer}
+input,textarea,select{font-family:inherit;font-size:16px;color:var(--dark)}
+/* ---------- layout ---------- */
+#brandbar{position:fixed;top:0;left:0;right:0;height:52px;background:var(--dark);color:#fff;
+  display:flex;align-items:center;justify-content:space-between;padding:0 14px;z-index:50}
+#brandbar .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:17px}
+#brandbar .brand small{font-weight:400;font-size:12px;opacity:.75;margin-left:2px}
+#brandbar .logo{width:28px;height:28px;background:var(--orange);border-radius:7px;display:flex;
+  align-items:center;justify-content:center}
+#langBtn{background:transparent;border:1px solid rgba(255,255,255,.4);color:#fff;border-radius:8px;
+  padding:4px 10px;font-size:14px}
+main{padding:52px 0 76px 0;min-height:100vh}
+.page{display:none;padding:14px;max-width:640px;margin:0 auto}
+.page.active{display:block}
+/* ---------- tabbar ---------- */
+#tabbar{position:fixed;bottom:0;left:0;right:0;height:64px;background:#fff;border-top:1px solid var(--line);
+  display:flex;z-index:50;padding-bottom:env(safe-area-inset-bottom)}
+#tabbar button{flex:1;background:none;border:none;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:2px;font-size:12px;color:var(--muted)}
+#tabbar button.on{color:var(--orange)}
+#tabbar svg{width:24px;height:24px}
+/* ---------- common ---------- */
+.card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:14px;margin-bottom:12px}
+.btn{display:block;width:100%;background:var(--orange);color:#fff;border:none;border-radius:12px;
+  padding:14px;font-size:17px;font-weight:600}
+.btn:active{background:var(--orange-dark)}
+.btn-sm{background:var(--orange);color:#fff;border:none;border-radius:10px;padding:9px 16px;font-size:15px;font-weight:600}
+.btn-ghost{background:#fff;color:var(--orange);border:1.5px solid var(--orange)}
+.input,textarea.input{width:100%;padding:12px;border:1px solid var(--line);border-radius:10px;background:#fff;margin-bottom:10px}
+.input:focus{outline:none;border-color:var(--orange)}
+label.fld{display:block;font-size:14px;color:var(--muted);margin:8px 0 4px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{background:#f4eee6;color:#6b6355;border-radius:999px;padding:3px 10px;font-size:13px}
+.chip.sel{background:var(--orange);color:#fff}
+.chip.pick{cursor:pointer;padding:7px 14px;font-size:15px;border:1px solid var(--line)}
+.stars{color:#f5a623;font-size:15px;letter-spacing:1px}
+.muted{color:var(--muted);font-size:13px}
+.disclaimer{color:var(--muted);font-size:12px;text-align:center;padding:14px 20px;line-height:1.6}
+.warn{background:var(--amber-bg);color:var(--amber);border-radius:8px;padding:6px 10px;font-size:13px;margin-top:8px}
+.empty{text-align:center;color:var(--muted);padding:30px 10px;font-size:15px}
+.toast{position:fixed;top:64px;left:50%;transform:translateX(-50%);background:var(--dark);color:#fff;
+  padding:10px 20px;border-radius:10px;font-size:15px;z-index:99;opacity:0;transition:opacity .3s;pointer-events:none;max-width:90%}
+.toast.show{opacity:1}
+h2.sec{font-size:17px;margin:16px 0 10px;font-weight:700}
+/* ---------- find tab ---------- */
+.searchrow{display:flex;gap:8px;margin-bottom:14px}
+.searchrow input{flex:1;margin-bottom:0}
+.cityinput{max-width:35%}
+#catGrid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.cat{background:#fff;border:1px solid var(--line);border-radius:var(--radius);padding:12px 4px 10px;
+  display:flex;flex-direction:column;align-items:center;gap:6px;cursor:pointer}
+.cat.sel{border-color:var(--orange);background:#fdf0e9}
+.cat svg{width:32px;height:32px;stroke:var(--orange);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round}
+.cat span{font-size:13px;text-align:center;word-break:keep-all}
+.pro-head{display:flex;justify-content:space-between;align-items:flex-start;gap:8px}
+.pro-name{font-size:17px;font-weight:700}
+/* ---------- messages ---------- */
+.thread{display:flex;justify-content:space-between;align-items:center;gap:10px;cursor:pointer}
+.thread .avatar{width:44px;height:44px;border-radius:50%;background:var(--orange);color:#fff;display:flex;
+  align-items:center;justify-content:center;font-size:19px;font-weight:700;flex-shrink:0}
+.thread .mid{flex:1;min-width:0}
+.thread .last{color:var(--muted);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+/* chat view */
+#chatView{position:fixed;inset:0;background:var(--bg);z-index:60;display:none;flex-direction:column}
+#chatView.open{display:flex}
+#chatHead{height:52px;background:var(--dark);color:#fff;display:flex;align-items:center;gap:10px;padding:0 12px;flex-shrink:0}
+#chatHead button{background:none;border:none;color:#fff;font-size:24px;padding:4px 8px}
+#chatSafety{background:var(--amber-bg);color:var(--amber);font-size:13px;padding:7px 12px;text-align:center;flex-shrink:0}
+#chatBody{flex:1;overflow-y:auto;padding:12px}
+.bubblerow{display:flex;margin-bottom:10px}
+.bubblerow.me{justify-content:flex-end}
+.bubble{max-width:75%;padding:9px 13px;border-radius:14px;font-size:16px;word-break:break-word;
+  background:#fff;border:1px solid var(--line);border-top-left-radius:4px}
+.bubblerow.me .bubble{background:var(--green);border:none;border-top-left-radius:14px;border-top-right-radius:4px}
+.bubble img{max-width:100%;border-radius:8px;display:block}
+#chatInput{display:flex;gap:8px;padding:10px 12px calc(10px + env(safe-area-inset-bottom));background:#fff;
+  border-top:1px solid var(--line);flex-shrink:0}
+#chatInput input[type=text]{flex:1;padding:11px;border:1px solid var(--line);border-radius:10px}
+#chatInput .icobtn{background:none;border:none;padding:4px}
+#chatInput .icobtn svg{width:26px;height:26px;stroke:var(--muted);fill:none;stroke-width:1.8}
+/* ---------- post tab ---------- */
+#thumbs{display:flex;gap:8px;margin-bottom:10px}
+.thumb{position:relative;width:76px;height:76px;border-radius:10px;overflow:hidden;border:1px solid var(--line)}
+.thumb img{width:100%;height:100%;object-fit:cover}
+.thumb .del{position:absolute;top:2px;right:2px;background:rgba(0,0,0,.6);color:#fff;border:none;
+  border-radius:50%;width:20px;height:20px;font-size:12px;line-height:1}
+#addPhoto{width:76px;height:76px;border:1.5px dashed var(--line);border-radius:10px;background:#fff;
+  color:var(--muted);font-size:26px}
+.reqphotos{display:flex;gap:6px;margin-top:8px;flex-wrap:wrap}
+.reqphotos img{width:70px;height:70px;object-fit:cover;border-radius:8px}
+/* ---------- me tab ---------- */
+.rolebtns{display:flex;gap:10px;margin-bottom:14px}
+.rolebtn{flex:1;padding:16px 8px;border-radius:12px;border:1.5px solid var(--line);background:#fff;font-size:16px;font-weight:600}
+.rolebtn.sel{border-color:var(--orange);background:#fdf0e9;color:var(--orange)}
+.review{border-top:1px solid var(--line);padding-top:8px;margin-top:8px}
+</style>
+</head>
+<body>
+
+<div id="brandbar">
+  <div class="brand">
+    <div class="logo">
+      <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round"><path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.8L3 17.8 6.2 21l5.7-5.7a4.5 4.5 0 0 0 5.8-6l-3 3-2.8-2.8 2.8-3.2z"/></svg>
+    </div>
+    <span data-i18n="brand">找师傅</span><small data-i18n="brandSub">ShiFu · 华人靠谱零工</small>
+  </div>
+  <button id="langBtn" onclick="toggleLang()">EN</button>
+</div>
+
+<main>
+<!-- ===== TAB 1 找师傅 ===== -->
+<div class="page active" id="page-find">
+  <div class="searchrow">
+    <input class="input cityinput" id="cityInput" data-i18n-ph="cityPh" placeholder="城市">
+    <input class="input" id="searchInput" data-i18n-ph="searchPh" placeholder="搜索师傅/服务…">
+    <button class="btn-sm" onclick="loadPros()" data-i18n="search">搜索</button>
+  </div>
+  <div id="catGrid"></div>
+  <h2 class="sec" id="prosTitle" data-i18n="prosTitle">推荐师傅</h2>
+  <div id="prosList"><div class="empty" data-i18n="pickCat">请选择服务类目查看师傅</div></div>
+  <div class="disclaimer" data-i18n="disclaimer">平台仅提供信息撮合，请自行核实资质，交易由双方自行承担。</div>
+</div>
+
+<!-- ===== TAB 2 发需求 ===== -->
+<div class="page" id="page-post">
+  <div class="card">
+    <label class="fld" data-i18n="fCat">服务类目</label>
+    <select class="input" id="reqCat"></select>
+    <label class="fld" data-i18n="fCity">城市</label>
+    <input class="input" id="reqCity" data-i18n-ph="cityPh" placeholder="城市">
+    <label class="fld" data-i18n="fTitle">标题</label>
+    <input class="input" id="reqTitle" data-i18n-ph="titlePh" placeholder="例如：厨房水槽漏水">
+    <label class="fld" data-i18n="fDetail">详细描述</label>
+    <textarea class="input" id="reqDetail" rows="4" data-i18n-ph="detailPh" placeholder="问题描述、时间要求、大概预算…"></textarea>
+    <label class="fld" data-i18n="fPhotos">照片（最多3张）</label>
+    <div id="thumbs"><button id="addPhoto" onclick="photoFile.click()">＋</button></div>
+    <input type="file" id="photoFile" accept="image/*" capture="environment" hidden onchange="onPickPhoto(this)">
+    <button class="btn" onclick="postRequest()" data-i18n="postBtn">发布需求</button>
+  </div>
+  <h2 class="sec" data-i18n="openReqs">附近的需求（师傅可接活）</h2>
+  <div id="reqList"><div class="empty" data-i18n="noReqs">暂无需求</div></div>
+</div>
+
+<!-- ===== TAB 3 消息 ===== -->
+<div class="page" id="page-msg">
+  <div id="threadList"><div class="empty" data-i18n="noThreads">暂无会话，去找个师傅聊聊吧</div></div>
+</div>
+
+<!-- ===== TAB 4 我的 ===== -->
+<div class="page" id="page-me">
+  <div id="meRegistered" style="display:none"></div>
+  <div id="meForm">
+    <h2 class="sec" data-i18n="regTitle">注册 / 登记</h2>
+    <div class="rolebtns">
+      <button class="rolebtn" id="roleCustomer" onclick="pickRole('customer')" data-i18n="roleCustomer">我要找师傅</button>
+      <button class="rolebtn" id="rolePro" onclick="pickRole('pro')" data-i18n="rolePro">我是师傅</button>
+    </div>
+    <div class="card">
+      <label class="fld" data-i18n="fName">姓名 / 称呼</label>
+      <input class="input" id="regName">
+      <label class="fld" data-i18n="fPhone">电话</label>
+      <input class="input" id="regPhone" type="tel">
+      <label class="fld" data-i18n="fWechat">微信号</label>
+      <input class="input" id="regWechat">
+      <label class="fld" data-i18n="fCity">城市</label>
+      <input class="input" id="regCity" data-i18n-ph="cityPh" placeholder="城市">
+      <div id="proFields" style="display:none">
+        <label class="fld" data-i18n="fCats">擅长类目（可多选）</label>
+        <div class="chips" id="regCats"></div>
+        <label class="fld" data-i18n="fIntro">简介</label>
+        <textarea class="input" id="regIntro" rows="3" data-i18n-ph="introPh" placeholder="经验年数、服务范围、报价方式…"></textarea>
+        <label class="fld" data-i18n="fLicense">执照说明（选填）</label>
+        <input class="input" id="regLicense" data-i18n-ph="licensePh" placeholder="如：持安省电工执照 #12345">
+      </div>
+      <button class="btn" style="margin-top:8px" onclick="register()" data-i18n="regBtn">完成注册</button>
+    </div>
+  </div>
+  <div class="disclaimer" data-i18n="disclaimer">平台仅提供信息撮合，请自行核实资质，交易由双方自行承担。</div>
+</div>
+</main>
+
+<!-- ===== chat overlay ===== -->
+<div id="chatView">
+  <div id="chatHead">
+    <button onclick="closeChat()">‹</button>
+    <b id="chatPeerName"></b>
+  </div>
+  <div id="chatSafety" data-i18n="chatSafety">请勿提前转账，谨防诈骗</div>
+  <div id="chatBody"></div>
+  <div id="chatInput">
+    <button class="icobtn" onclick="chatPhotoFile.click()">
+      <svg viewBox="0 0 24 24"><rect x="3" y="6" width="18" height="14" rx="2"/><circle cx="12" cy="13" r="3.5"/><path d="M8 6l1.5-2.5h5L16 6"/></svg>
+    </button>
+    <input type="file" id="chatPhotoFile" accept="image/*" capture="environment" hidden onchange="onChatPhoto(this)">
+    <input type="text" id="chatText" data-i18n-ph="msgPh" placeholder="输入消息…" onkeydown="if(event.key==='Enter')sendMsg()">
+    <button class="btn-sm" onclick="sendMsg()" data-i18n="send">发送</button>
+  </div>
+</div>
+
+<div id="tabbar">
+  <button class="on" onclick="switchTab('find')" id="tab-find">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M16.5 16.5L21 21"/></svg>
+    <span data-i18n="tabFind">找师傅</span></button>
+  <button onclick="switchTab('post')" id="tab-post">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M12 8v8M8 12h8"/></svg>
+    <span data-i18n="tabPost">发需求</span></button>
+  <button onclick="switchTab('msg')" id="tab-msg">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><path d="M21 12a8 8 0 0 1-8 8H4l2-3a8 8 0 1 1 15-5z"/></svg>
+    <span data-i18n="tabMsg">消息</span></button>
+  <button onclick="switchTab('me')" id="tab-me">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"><circle cx="12" cy="8" r="4"/><path d="M4 20c1.5-3.5 4.5-5 8-5s6.5 1.5 8 5"/></svg>
+    <span data-i18n="tabMe">我的</span></button>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+"use strict";
+const API = (window.APP_API || "") + "/shifu";
+
+/* ================= i18n ================= */
+const I18N = {
+  zh: {
+    brand:"找师傅", brandSub:"ShiFu · 华人靠谱零工",
+    tabFind:"找师傅", tabPost:"发需求", tabMsg:"消息", tabMe:"我的",
+    cityPh:"城市", searchPh:"搜索师傅/服务…", search:"搜索",
+    prosTitle:"推荐师傅", pickCat:"请选择服务类目查看师傅", noPros:"该类目暂无师傅，试试其他城市",
+    chat:"聊一聊", reviews:"条评价", noReviewsYet:"暂无评价",
+    licenseWarn:"⚠︎ 请核实执照后再约",
+    disclaimer:"平台仅提供信息撮合，请自行核实资质，交易由双方自行承担。",
+    fCat:"服务类目", fCity:"城市", fTitle:"标题", fDetail:"详细描述", fPhotos:"照片（最多3张）",
+    titlePh:"例如：厨房水槽漏水", detailPh:"问题描述、时间要求、大概预算…",
+    postBtn:"发布需求", postOk:"发布成功！师傅看到后会联系您",
+    openReqs:"附近的需求（师傅可接活）", noReqs:"暂无需求", contact:"联系TA",
+    noThreads:"暂无会话，去找个师傅聊聊吧", msgPh:"输入消息…", send:"发送",
+    chatSafety:"请勿提前转账，谨防诈骗",
+    regTitle:"注册 / 登记", roleCustomer:"我要找师傅", rolePro:"我是师傅",
+    fName:"姓名 / 称呼", fPhone:"电话", fWechat:"微信号", fCats:"擅长类目（可多选）",
+    fIntro:"简介", fLicense:"执照说明（选填）",
+    introPh:"经验年数、服务范围、报价方式…", licensePh:"如：持安省电工执照 #12345",
+    regBtn:"完成注册", regOk:"注册成功！",
+    myProfile:"我的资料", editBtn:"切换 / 编辑", rolePro2:"师傅", roleCustomer2:"用户",
+    needReg:"请先到「我的」注册", needFields:"请填写姓名、电话和城市", needReqFields:"请填写类目、城市和标题",
+    needProCat:"师傅请至少选择一个擅长类目",
+    photoMax:"最多上传3张照片", uploading:"上传中…", sendFail:"发送失败，请重试", netErr:"网络错误，请稍后再试",
+    justNow:"刚刚", me:"我"
+  },
+  en: {
+    brand:"ShiFu", brandSub:"Trusted Chinese Handymen",
+    tabFind:"Find Pro", tabPost:"Post Job", tabMsg:"Chats", tabMe:"Me",
+    cityPh:"City", searchPh:"Search pros/services…", search:"Search",
+    prosTitle:"Recommended Pros", pickCat:"Pick a category to see pros", noPros:"No pros in this category yet, try another city",
+    chat:"Chat", reviews:"reviews", noReviewsYet:"No reviews yet",
+    licenseWarn:"⚠︎ Verify license before booking",
+    disclaimer:"This platform only matches information. Verify credentials yourself; transactions are at both parties' own risk.",
+    fCat:"Category", fCity:"City", fTitle:"Title", fDetail:"Details", fPhotos:"Photos (up to 3)",
+    titlePh:"e.g. Kitchen sink leaking", detailPh:"Describe the issue, timing, budget…",
+    postBtn:"Post Request", postOk:"Posted! Pros will contact you",
+    openReqs:"Nearby requests (pros can take jobs)", noReqs:"No requests yet", contact:"Contact",
+    noThreads:"No chats yet. Go find a pro!", msgPh:"Type a message…", send:"Send",
+    chatSafety:"Never pay in advance. Beware of scams.",
+    regTitle:"Sign Up", roleCustomer:"I need a pro", rolePro:"I am a pro",
+    fName:"Name", fPhone:"Phone", fWechat:"WeChat ID", fCats:"Skills (multi-select)",
+    fIntro:"Intro", fLicense:"License note (optional)",
+    introPh:"Years of experience, service area, pricing…", licensePh:"e.g. ON licensed electrician #12345",
+    regBtn:"Sign Up", regOk:"Registered!",
+    myProfile:"My Profile", editBtn:"Switch / Edit", rolePro2:"Pro", roleCustomer2:"Customer",
+    needReg:"Please register in the Me tab first", needFields:"Name, phone and city are required", needReqFields:"Category, city and title are required",
+    needProCat:"Pros must pick at least one skill",
+    photoMax:"Up to 3 photos", uploading:"Uploading…", sendFail:"Failed, please retry", netErr:"Network error, try again later",
+    justNow:"just now", me:"Me"
+  }
+};
+let lang = localStorage.getItem("shifu_lang") || "zh";
+const t = k => (I18N[lang][k] || k);
+function applyI18n(){
+  document.querySelectorAll("[data-i18n]").forEach(el => el.textContent = t(el.dataset.i18n));
+  document.querySelectorAll("[data-i18n-ph]").forEach(el => el.placeholder = t(el.dataset.i18nPh));
+  document.getElementById("langBtn").textContent = lang === "zh" ? "EN" : "中";
+  document.documentElement.lang = lang === "zh" ? "zh-CN" : "en";
+}
+function toggleLang(){
+  lang = lang === "zh" ? "en" : "zh";
+  localStorage.setItem("shifu_lang", lang);
+  applyI18n(); renderCats(); renderPros(); renderRequests(); renderThreads(); renderMe();
+}
+
+/* ================= helpers ================= */
+function esc(s){ const d=document.createElement("div"); d.textContent=s==null?"":String(s); return d.innerHTML; }
+let toastTimer;
+function toast(msg){
+  const el=document.getElementById("toast"); el.textContent=msg; el.classList.add("show");
+  clearTimeout(toastTimer); toastTimer=setTimeout(()=>el.classList.remove("show"),2200);
+}
+async function api(path, body){
+  const opt = body ? {method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(body)} : {};
+  const r = await fetch(API+path, opt);
+  if(!r.ok) throw new Error("HTTP "+r.status);
+  return r.json();
+}
+function starHtml(n){ n=Math.round(n||0); return "★".repeat(n)+"☆".repeat(5-n); }
+function getUid(){ return localStorage.getItem("shifu_uid") || ""; }
+function getCity(){ return localStorage.getItem("shifu_city") || ""; }
+
+/* ================= tabs ================= */
+function switchTab(name){
+  document.querySelectorAll(".page").forEach(p=>p.classList.remove("active"));
+  document.getElementById("page-"+name).classList.add("active");
+  document.querySelectorAll("#tabbar button").forEach(b=>b.classList.remove("on"));
+  document.getElementById("tab-"+name).classList.add("on");
+  window.scrollTo(0,0);
+  if(name==="msg") loadThreads();
+  if(name==="post") loadRequests();
+  if(name==="me") renderMe();
+}
+
+/* ================= categories + icons ================= */
+/* 14 inline SVG tool icons, assigned to categories by order */
+const ICONS = [
+  /*马桶*/'<path d="M7 3h7v6H7z"/><path d="M7 9h11c0 4-2 6-5 6h-2c-3 0-4-2-4-6z"/><path d="M10 15l-1 6h5"/>',
+  /*扳手*/'<path d="M14.7 6.3a4.5 4.5 0 0 0-6 5.8L3 17.8 6.2 21l5.7-5.7a4.5 4.5 0 0 0 5.8-6l-3 3-2.8-2.8 2.8-3.2z"/>',
+  /*闪电*/'<path d="M13 2L4.5 13.5H11L9.5 22 19 10h-6.5L13 2z"/>',
+  /*割草机*/'<circle cx="6" cy="17" r="2.5"/><circle cx="17" cy="18" r="1.8"/><path d="M8.5 17H15M18 16l3-8M6 14l3-9h5"/>',
+  /*箱子*/'<path d="M3 8l9-4 9 4v9l-9 4-9-4V8z"/><path d="M3 8l9 4 9-4M12 12v9"/>',
+  /*地板*/'<rect x="3" y="4" width="18" height="16" rx="1"/><path d="M3 9h18M3 14h18M9 4v5M15 9v5M9 14v6"/>',
+  /*水龙头*/'<path d="M4 10h10a4 4 0 0 1 4 4v2h-3v-1a1 1 0 0 0-1-1H4v-4z"/><path d="M8 10V7h4M10 4v3"/><path d="M16.5 20c.8 0 1.5-.6 1.5-1.4 0-1-1.5-2.6-1.5-2.6S15 17.6 15 18.6c0 .8.7 1.4 1.5 1.4z"/>',
+  /*家电(冰箱)*/'<rect x="6" y="2.5" width="12" height="19" rx="2"/><path d="M6 10h12M9 6v2M9 13v3"/>',
+  /*滚刷*/'<rect x="4" y="3" width="13" height="5" rx="1.5"/><path d="M17 4.5h3v4h-8v3M12 11.5h1.5v9h-3v-9H12z"/>',
+  /*安全帽*/'<path d="M4 15a8 8 0 0 1 16 0"/><path d="M2.5 15h19v2.5h-19z"/><path d="M10 7V4.5h4V7"/>',
+  /*喷壶*/'<path d="M8 8h7l3 12H5L8 8z"/><path d="M9.5 8V6a2 2 0 0 1 4 0M18 10l3-2M18.5 13h3M4 4l2 2"/>',
+  /*奶瓶*/'<path d="M10 2.5h4M11 2.5v3h2v-3M9 8.5c0-1.7 1.3-3 3-3s3 1.3 3 3v10a3 3 0 0 1-6 0v-10z"/><path d="M9 12h6M9 15.5h6"/>',
+  /*摇篮*/'<path d="M4 6v6a8 8 0 0 0 16 0V6"/><path d="M4 10h16M2.5 21c3-2.5 6-2.5 9.5 0 3.5-2.5 6.5-2.5 9.5 0"/>',
+  /*更多*/'<circle cx="5" cy="12" r="1.6"/><circle cx="12" cy="12" r="1.6"/><circle cx="19" cy="12" r="1.6"/>'
+];
+const FALLBACK_CATS = [
+  {key:"plumbing",zh:"通渠水管",en:"Plumbing"},{key:"handyman",zh:"综合维修",en:"Handyman"},
+  {key:"electric",zh:"电工",en:"Electrician"},{key:"lawn",zh:"剪草园艺",en:"Lawn Care"},
+  {key:"moving",zh:"搬家",en:"Moving"},{key:"flooring",zh:"地板安装",en:"Flooring"},
+  {key:"faucet",zh:"厨卫安装",en:"Kitchen & Bath"},{key:"appliance",zh:"家电维修",en:"Appliance"},
+  {key:"painting",zh:"油漆粉刷",en:"Painting"},{key:"renovation",zh:"装修翻新",en:"Renovation"},
+  {key:"cleaning",zh:"保洁清洁",en:"Cleaning"},{key:"nanny",zh:"月嫂保姆",en:"Nanny"},
+  {key:"babysit",zh:"看娃接送",en:"Babysitting"},{key:"other",zh:"更多服务",en:"More"}
+];
+let cats = FALLBACK_CATS, curCat = "";
+function catName(c){ return lang==="zh" ? c.zh : (c.en||c.zh); }
+function catByKey(k){ return cats.find(c=>c.key===k) || {key:k,zh:k,en:k}; }
+function renderCats(){
+  document.getElementById("catGrid").innerHTML = cats.map((c,i)=>
+    `<div class="cat ${c.key===curCat?'sel':''}" onclick="pickCat('${esc(c.key)}')">
+       <svg viewBox="0 0 24 24">${ICONS[i % ICONS.length]}</svg><span>${esc(catName(c))}</span></div>`).join("");
+  const sel = document.getElementById("reqCat");
+  const v = sel.value;
+  sel.innerHTML = cats.map(c=>`<option value="${esc(c.key)}">${esc(catName(c))}</option>`).join("");
+  if(v) sel.value = v;
+  document.getElementById("regCats").innerHTML = cats.map(c=>
+    `<span class="chip pick ${regCatSel.has(c.key)?'sel':''}" onclick="toggleRegCat('${esc(c.key)}')">${esc(catName(c))}</span>`).join("");
+}
+async function loadCats(){
+  try{ const d = await api("/cats"); if(d.cats && d.cats.length) cats = d.cats; }catch(e){}
+  renderCats();
+}
+function pickCat(k){ curCat = (curCat===k ? "" : k); renderCats(); loadPros(); }
+
+/* ================= pros ================= */
+let pros = [];
+async function loadPros(){
+  const city = document.getElementById("cityInput").value.trim();
+  if(city) localStorage.setItem("shifu_city", city);
+  try{
+    const d = await api(`/pros?category=${encodeURIComponent(curCat)}&city=${encodeURIComponent(city)}`);
+    pros = d.pros || [];
+  }catch(e){ pros = []; toast(t("netErr")); }
+  renderPros();
+}
+function renderPros(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  let list = pros;
+  if(q) list = list.filter(p =>
+    (p.name||"").toLowerCase().includes(q) || (p.intro||"").toLowerCase().includes(q) ||
+    (p.categories||[]).some(k => catName(catByKey(k)).toLowerCase().includes(q)));
+  const box = document.getElementById("prosList");
+  if(!curCat && !pros.length){ box.innerHTML = `<div class="empty">${t("pickCat")}</div>`; return; }
+  if(!list.length){ box.innerHTML = `<div class="empty">${t("noPros")}</div>`; return; }
+  box.innerHTML = list.map(p=>`
+    <div class="card">
+      <div class="pro-head">
+        <div>
+          <div class="pro-name">${esc(p.name)} <span class="muted">· ${esc(p.city||"")}</span></div>
+          <div class="stars">${starHtml(p.stars)} <span class="muted">${p.n_reviews||0} ${t("reviews")}</span></div>
+        </div>
+        <button class="btn-sm" onclick="openChat('${esc(p.uid)}','${esc(p.name)}')">${t("chat")}</button>
+      </div>
+      ${p.intro ? `<div style="margin-top:6px">${esc(p.intro)}</div>` : ""}
+      <div class="chips" style="margin-top:8px">${(p.categories||[]).map(k=>`<span class="chip">${esc(catName(catByKey(k)))}</span>`).join("")}</div>
+      ${p.license_note ? `<div class="muted" style="margin-top:6px">📄 ${esc(p.license_note)}</div>` : ""}
+      ${p.license_warn ? `<div class="warn">${t("licenseWarn")}</div>` : ""}
+      <div class="muted" style="margin-top:8px;font-size:12px">${t("disclaimer")}</div>
+    </div>`).join("");
+}
+
+/* ================= photo compress + upload ================= */
+function compressImage(file, maxSide){
+  return new Promise((resolve, reject)=>{
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+    img.onload = ()=>{
+      URL.revokeObjectURL(url);
+      let {width:w, height:h} = img;
+      const scale = Math.min(1, maxSide / Math.max(w, h));
+      w = Math.round(w*scale); h = Math.round(h*scale);
+      const cv = document.createElement("canvas");
+      cv.width = w; cv.height = h;
+      cv.getContext("2d").drawImage(img, 0, 0, w, h);
+      // dataURL: "data:image/jpeg;base64,XXXX" -> take b64 part
+      resolve(cv.toDataURL("image/jpeg", 0.8).split(",")[1]);
+    };
+    img.onerror = ()=>{ URL.revokeObjectURL(url); reject(new Error("bad image")); };
+    img.src = url;
+  });
+}
+async function uploadPhoto(file){
+  const b64 = await compressImage(file, 1280);
+  const d = await api("/photo", {b64});
+  return d.name;
+}
+
+/* ================= post request ================= */
+let reqPhotos = []; // [{name, b64}]
+async function onPickPhoto(input){
+  const f = input.files[0]; input.value = "";
+  if(!f) return;
+  if(reqPhotos.length >= 3){ toast(t("photoMax")); return; }
+  toast(t("uploading"));
+  try{
+    const b64 = await compressImage(f, 1280);
+    const d = await api("/photo", {b64});
+    reqPhotos.push({name:d.name, b64});
+    renderThumbs();
+  }catch(e){ toast(t("sendFail")); }
+}
+function delPhoto(i){ reqPhotos.splice(i,1); renderThumbs(); }
+function renderThumbs(){
+  const box = document.getElementById("thumbs");
+  box.innerHTML = reqPhotos.map((p,i)=>
+    `<div class="thumb"><img src="data:image/jpeg;base64,${p.b64}">
+      <button class="del" onclick="delPhoto(${i})">✕</button></div>`).join("")
+    + (reqPhotos.length<3 ? `<button id="addPhoto" onclick="photoFile.click()">＋</button>` : "");
+}
+async function postRequest(){
+  const uid = getUid();
+  if(!uid){ toast(t("needReg")); switchTab("me"); return; }
+  const category = document.getElementById("reqCat").value;
+  const city = document.getElementById("reqCity").value.trim();
+  const title = document.getElementById("reqTitle").value.trim();
+  const detail = document.getElementById("reqDetail").value.trim();
+  if(!category || !city || !title){ toast(t("needReqFields")); return; }
+  try{
+    await api("/request", {uid, category, city, title, detail, photos: reqPhotos.map(p=>p.name)});
+    toast(t("postOk"));
+    document.getElementById("reqTitle").value = "";
+    document.getElementById("reqDetail").value = "";
+    reqPhotos = []; renderThumbs();
+    loadRequests();
+  }catch(e){ toast(t("netErr")); }
+}
+
+/* ================= requests list ================= */
+let requests = [];
+async function loadRequests(){
+  const city = getCity();
+  try{
+    const d = await api(`/requests?category=&city=${encodeURIComponent(city)}`);
+    requests = d.requests || [];
+  }catch(e){ requests = []; }
+  renderRequests();
+}
+function renderRequests(){
+  const box = document.getElementById("reqList");
+  if(!requests.length){ box.innerHTML = `<div class="empty">${t("noReqs")}</div>`; return; }
+  box.innerHTML = requests.map(r=>`
+    <div class="card">
+      <div class="pro-head">
+        <div>
+          <b style="font-size:16px">${esc(r.title)}</b>
+          <div class="muted"><span class="chip">${esc(catName(catByKey(r.category)))}</span> ${esc(r.city)} · ${esc(r.name||"")} · ${esc(fmtTime(r.created))}</div>
+        </div>
+      </div>
+      ${r.detail ? `<div style="margin-top:6px">${esc(r.detail)}</div>` : ""}
+      ${(r.photos&&r.photos.length) ? `<div class="reqphotos">${r.photos.map(n=>`<img src="${API}/photo/${esc(n)}" loading="lazy">`).join("")}</div>` : ""}
+      ${r.uid ? `<button class="btn-sm btn-ghost" style="margin-top:10px" onclick="openChat('${esc(r.uid)}','${esc(r.name||"")}')">${t("contact")}</button>` : ""}
+    </div>`).join("");
+}
+function fmtTime(s){
+  if(!s) return "";
+  const d = new Date(s); if(isNaN(d)) return s;
+  const diff = (Date.now()-d.getTime())/60000;
+  if(diff < 2) return t("justNow");
+  if(diff < 60) return Math.round(diff) + (lang==="zh"?"分钟前":" min ago");
+  if(diff < 1440) return Math.round(diff/60) + (lang==="zh"?"小时前":" h ago");
+  return (d.getMonth()+1)+"/"+d.getDate();
+}
+
+/* ================= threads & chat ================= */
+let threads = [];
+async function loadThreads(){
+  const uid = getUid(); if(!uid){ renderThreads(); return; }
+  try{ const d = await api(`/threads?uid=${encodeURIComponent(uid)}`); threads = d.threads || []; }
+  catch(e){ threads = []; }
+  renderThreads();
+}
+function renderThreads(){
+  const box = document.getElementById("threadList");
+  if(!getUid()){ box.innerHTML = `<div class="empty">${t("needReg")}</div>`; return; }
+  if(!threads.length){ box.innerHTML = `<div class="empty">${t("noThreads")}</div>`; return; }
+  box.innerHTML = threads.map(th=>`
+    <div class="card thread" onclick="openChat('${esc(th.peer_uid)}','${esc(th.peer_name)}')">
+      <div class="avatar">${esc((th.peer_name||"?").charAt(0))}</div>
+      <div class="mid">
+        <b>${esc(th.peer_name)}</b>
+        <div class="last">${esc(th.last_text||"")}</div>
+      </div>
+      <span class="muted">${esc(fmtTime(th.last_time))}</span>
+    </div>`).join("");
+}
+
+let chatPeer = null, chatPoll = null, lastMsgCount = -1;
+function openChat(peerUid, peerName){
+  const uid = getUid();
+  if(!uid){ toast(t("needReg")); switchTab("me"); return; }
+  chatPeer = peerUid;
+  document.getElementById("chatPeerName").textContent = peerName || "";
+  document.getElementById("chatBody").innerHTML = "";
+  document.getElementById("chatView").classList.add("open");
+  lastMsgCount = -1;
+  loadMsgs(true);
+  clearInterval(chatPoll);
+  chatPoll = setInterval(()=>loadMsgs(false), 5000);   // 5s polling
+}
+function closeChat(){
+  document.getElementById("chatView").classList.remove("open");
+  clearInterval(chatPoll); chatPoll = null; chatPeer = null;
+  loadThreads();
+}
+async function loadMsgs(scroll){
+  if(!chatPeer) return;
+  const uid = getUid();
+  let msgs = [];
+  try{
+    const d = await api(`/msgs?uid=${encodeURIComponent(uid)}&peer_uid=${encodeURIComponent(chatPeer)}`);
+    msgs = d.msgs || [];
+  }catch(e){ return; }
+  if(msgs.length === lastMsgCount && !scroll) return;  // no change, skip re-render
+  const grew = msgs.length !== lastMsgCount;
+  lastMsgCount = msgs.length;
+  const body = document.getElementById("chatBody");
+  const atBottom = body.scrollHeight - body.scrollTop - body.clientHeight < 60;
+  body.innerHTML = msgs.map(m=>{
+    const me = m.from_uid === uid;
+    return `<div class="bubblerow ${me?'me':''}"><div class="bubble">
+      ${m.photo ? `<img src="${API}/photo/${esc(m.photo)}" loading="lazy">` : ""}
+      ${m.text ? esc(m.text) : ""}</div></div>`;
+  }).join("");
+  if(scroll || (grew && atBottom)) body.scrollTop = body.scrollHeight;
+}
+async function sendMsg(){
+  const input = document.getElementById("chatText");
+  const text = input.value.trim();
+  if(!text || !chatPeer) return;
+  input.value = "";
+  try{
+    await api("/msg", {from_uid:getUid(), to_uid:chatPeer, text});
+    loadMsgs(true);
+  }catch(e){ toast(t("sendFail")); input.value = text; }
+}
+async function onChatPhoto(input){
+  const f = input.files[0]; input.value = "";
+  if(!f || !chatPeer) return;
+  toast(t("uploading"));
+  try{
+    const name = await uploadPhoto(f);
+    await api("/msg", {from_uid:getUid(), to_uid:chatPeer, photo:name});
+    loadMsgs(true);
+  }catch(e){ toast(t("sendFail")); }
+}
+
+/* ================= me / register ================= */
+let regRole = "customer";
+const regCatSel = new Set();
+function pickRole(r){
+  regRole = r;
+  document.getElementById("roleCustomer").classList.toggle("sel", r==="customer");
+  document.getElementById("rolePro").classList.toggle("sel", r==="pro");
+  document.getElementById("proFields").style.display = r==="pro" ? "block" : "none";
+}
+function toggleRegCat(k){
+  regCatSel.has(k) ? regCatSel.delete(k) : regCatSel.add(k);
+  renderCats();
+}
+async function register(){
+  const name = document.getElementById("regName").value.trim();
+  const phone = document.getElementById("regPhone").value.trim();
+  const wechat = document.getElementById("regWechat").value.trim();
+  const city = document.getElementById("regCity").value.trim();
+  if(!name || !phone || !city){ toast(t("needFields")); return; }
+  if(regRole==="pro" && !regCatSel.size){ toast(t("needProCat")); return; }
+  const body = {role:regRole, name, phone, wechat, city};
+  if(regRole==="pro"){
+    body.categories = [...regCatSel];
+    body.intro = document.getElementById("regIntro").value.trim();
+    body.license_note = document.getElementById("regLicense").value.trim();
+  }
+  try{
+    const d = await api("/register", body);
+    localStorage.setItem("shifu_uid", d.uid);
+    localStorage.setItem("shifu_city", city);
+    toast(t("regOk"));
+    renderMe();
+  }catch(e){ toast(t("netErr")); }
+}
+async function renderMe(){
+  const uid = getUid();
+  const reg = document.getElementById("meRegistered"), form = document.getElementById("meForm");
+  if(!uid){ reg.style.display="none"; form.style.display="block"; pickRole(regRole); return; }
+  let me = null;
+  try{ me = await api(`/me?uid=${encodeURIComponent(uid)}`); }catch(e){}
+  if(!me){ reg.style.display="none"; form.style.display="block"; return; }
+  form.style.display = "none"; reg.style.display = "block";
+  reg.innerHTML = `
+    <h2 class="sec">${t("myProfile")}</h2>
+    <div class="card">
+      <div class="pro-name">${esc(me.name||"")} <span class="chip sel">${me.role==="pro"?t("rolePro2"):t("roleCustomer2")}</span></div>
+      <div style="margin-top:8px">📍 ${esc(me.city||"")}</div>
+      <div>📞 ${esc(me.phone||"")}</div>
+      ${me.wechat ? `<div>💬 ${esc(me.wechat)}</div>` : ""}
+      ${(me.categories&&me.categories.length) ? `<div class="chips" style="margin-top:8px">${me.categories.map(k=>`<span class="chip">${esc(catName(catByKey(k)))}</span>`).join("")}</div>` : ""}
+      ${me.intro ? `<div style="margin-top:8px">${esc(me.intro)}</div>` : ""}
+      ${me.license_note ? `<div class="muted" style="margin-top:6px">📄 ${esc(me.license_note)}</div>` : ""}
+      <button class="btn btn-ghost" style="margin-top:14px" onclick="editProfile()">${t("editBtn")}</button>
+    </div>`;
+  // prefill form
+  document.getElementById("regName").value = me.name||"";
+  document.getElementById("regPhone").value = me.phone||"";
+  document.getElementById("regWechat").value = me.wechat||"";
+  document.getElementById("regCity").value = me.city||"";
+  document.getElementById("regIntro").value = me.intro||"";
+  document.getElementById("regLicense").value = me.license_note||"";
+  if(me.role) { regRole = me.role; }
+  regCatSel.clear(); (me.categories||[]).forEach(k=>regCatSel.add(k));
+}
+function editProfile(){
+  document.getElementById("meRegistered").style.display = "none";
+  document.getElementById("meForm").style.display = "block";
+  pickRole(regRole); renderCats();
+}
+
+/* ================= init ================= */
+document.getElementById("cityInput").value = getCity();
+document.getElementById("reqCity").value = getCity();
+document.getElementById("cityInput").addEventListener("change", e=>{
+  const v = e.target.value.trim();
+  if(v){ localStorage.setItem("shifu_city", v); document.getElementById("reqCity").value = v; }
+});
+document.getElementById("searchInput").addEventListener("input", renderPros);
+applyI18n();
+renderCats();
+pickRole("customer");
+loadCats();
+loadRequests();
+if(getUid()) loadThreads();
+</script>
+</body>
+</html>
