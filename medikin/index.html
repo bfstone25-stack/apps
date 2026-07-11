@@ -1,52 +1,186 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>MediKin · 家医管家</title><script src="config.js"></script>
+<title>MediKin · 家医管家 — Family Health Companion</title><script src="config.js"></script>
 <style>
-body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:720px;margin:0 auto;padding:24px;background:#fafaf7;color:#222}
-h1{font-size:1.6em;margin-bottom:4px} .tag{color:#777;margin-bottom:20px}
-label{display:block;margin:14px 0 4px;font-weight:600;font-size:.92em}
-input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1em;box-sizing:border-box;background:#fff}
-button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#2c3e50;color:#fff;font-size:1.05em;cursor:pointer}
-button:disabled{opacity:.5} #out{white-space:pre-wrap;background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;margin-top:20px;min-height:40px;line-height:1.65}
-.langbtn{float:right;background:none;border:1px solid #ccc;border-radius:6px;width:auto;padding:4px 10px;margin:0;color:#555;font-size:.85em}
-.fb{margin-top:10px;text-align:center;color:#999} .fb span{cursor:pointer;font-size:1.4em;margin:0 6px}
+:root{--teal:#14695e;--teal2:#0d4f47;--mint:#f7faf9;--paper:#fcfefd;--ink:#22302e;--dim:#63746f;--coral:#e07856;--coral2:#c05f3f;--line:#dde8e4;
+--sh-sm:0 1px 2px rgba(13,79,71,.06),0 1px 3px rgba(13,79,71,.05);
+--sh-md:0 2px 4px rgba(13,79,71,.05),0 12px 28px -8px rgba(13,79,71,.12);
+--ring:0 0 0 3px rgba(20,105,94,.18)}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;margin:0;color:var(--ink);-webkit-font-smoothing:antialiased;
+background:var(--mint);background-image:radial-gradient(1100px 480px at 85% -8%,rgba(20,105,94,.06),transparent 60%),radial-gradient(900px 420px at -10% 8%,rgba(224,120,86,.05),transparent 55%)}
+.serif{font-family:Georgia,'Times New Roman','Songti SC',serif}
+/* ── 吸顶毛玻璃栏 ── */
+.bar{position:sticky;top:0;z-index:40;background:rgba(13,79,71,.9);backdrop-filter:blur(14px) saturate(1.4);-webkit-backdrop-filter:blur(14px) saturate(1.4);
+color:#e8f2ef;padding:13px 24px;display:flex;align-items:baseline;gap:12px;border-bottom:1px solid rgba(224,120,86,.3)}
+.bar .wm{font-family:Georgia,serif;font-size:1.2em;letter-spacing:2.5px;font-weight:700}
+.bar .wm i{color:var(--coral);font-style:normal}
+.bar .cn{font-size:.82em;color:#9dc4bc;letter-spacing:4px}
+.bar .langbtn{margin-left:auto;background:rgba(255,255,255,.06);border:1px solid rgba(157,196,188,.35);border-radius:999px;padding:5px 15px;color:#c8ded8;font-size:.8em;cursor:pointer;transition:all .18s ease}
+.bar .langbtn:hover{border-color:var(--coral);color:#fff;background:rgba(224,120,86,.18)}
+/* ── 主体 ── */
+.wrap{max-width:780px;margin:0 auto;padding:52px 22px 72px}
+@keyframes fadeUp{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
+.wrap>*{animation:fadeUp .55s cubic-bezier(.2,.7,.3,1) both}
+.wrap>*:nth-child(2){animation-delay:.06s}.wrap>*:nth-child(3){animation-delay:.12s}
+.wrap>*:nth-child(4){animation-delay:.18s}.wrap>*:nth-child(5){animation-delay:.22s}
+.wrap>*:nth-child(6){animation-delay:.26s}.wrap>*:nth-child(7){animation-delay:.3s}
+.eyebrow{display:inline-flex;align-items:center;gap:8px;border:1px solid rgba(20,105,94,.35);background:rgba(20,105,94,.07);color:var(--teal);
+border-radius:999px;padding:5px 14px;font-size:.74em;font-weight:700;letter-spacing:2px;margin-bottom:18px}
+.eyebrow::before{content:"";width:6px;height:6px;border-radius:50%;background:var(--coral)}
+h1{font-family:Georgia,'Songti SC',serif;font-size:clamp(1.9em,4.6vw,2.55em);line-height:1.22;letter-spacing:-.4px;margin:0 0 14px;color:var(--teal2)}
+.sub{color:var(--dim);font-size:1.05em;line-height:1.7;margin-bottom:22px;max-width:620px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:38px}
+.chip{border:1px solid var(--line);background:rgba(252,254,253,.85);border-radius:999px;padding:7px 16px;font-size:.82em;color:#4a5f5a;box-shadow:var(--sh-sm);transition:all .18s ease}
+.chip:hover{transform:translateY(-1px);box-shadow:var(--sh-md);border-color:rgba(224,120,86,.45)}
+.chip b{color:var(--teal)}
+/* ── 步骤 ── */
+.step{display:flex;gap:14px;margin:30px 0 12px;align-items:baseline}
+.step .no{font-family:Georgia,serif;color:var(--coral);font-size:1.2em;font-weight:700;min-width:34px}
+.step .st{font-weight:700;font-size:1.04em;color:var(--teal2);letter-spacing:.2px}
+.card{background:rgba(252,254,253,.92);border:1px solid var(--line);border-radius:16px;padding:24px 26px;box-shadow:var(--sh-md);transition:box-shadow .25s ease}
+label{display:block;margin:16px 0 7px;font-weight:600;font-size:.88em;color:#33504a;letter-spacing:.2px}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:13px 14px;border:1.5px solid var(--line);border-radius:11px;font-size:1em;background:#fff;color:var(--ink);font-family:inherit;transition:border-color .18s ease,box-shadow .18s ease;appearance:none}
+select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2363746f' stroke-width='1.6' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 14px center}
+select:focus,textarea:focus,input:focus{outline:none;border-color:var(--teal);box-shadow:var(--ring)}
+textarea{resize:vertical;line-height:1.6}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+button.go{margin-top:24px;width:100%;padding:16px;border:0;border-radius:12px;background:linear-gradient(180deg,#177567,var(--teal2));color:#eefaf6;font-size:1.05em;letter-spacing:1.5px;cursor:pointer;font-weight:700;box-shadow:0 2px 6px rgba(13,79,71,.3),inset 0 1px 0 rgba(255,255,255,.1);transition:all .18s ease}
+button.go:hover{transform:translateY(-1.5px);box-shadow:0 6px 18px rgba(13,79,71,.32),0 2px 8px rgba(224,120,86,.28),inset 0 1px 0 rgba(255,255,255,.12)}
+button.go:active{transform:translateY(0) scale(.995)}
+button.go:disabled{opacity:.55;cursor:wait;transform:none}
+/* ── 报告 ── */
+.report{display:none;margin-top:34px;background:var(--paper);border:1px solid var(--line);border-radius:16px;overflow:hidden;box-shadow:var(--sh-md)}
+.report.on{display:block;animation:fadeUp .45s ease both}
+.rhead{background:linear-gradient(135deg,var(--teal2) 0%,#177567 100%);color:#e8f2ef;padding:14px 22px;font-family:Georgia,'Songti SC',serif;letter-spacing:2px;font-size:.92em;display:flex;justify-content:space-between;align-items:center;border-bottom:2px solid rgba(224,120,86,.5)}
+.rhead .coral{color:var(--coral)}
+#out{white-space:pre-wrap;padding:22px 24px;line-height:1.8;font-size:.97em;min-height:60px}
+.cursor::after{content:"▋";color:var(--coral);animation:bl 1s infinite}@keyframes bl{50%{opacity:0}}
+/* ── 反馈/页脚 ── */
+.fb{margin-top:16px;text-align:center;color:var(--dim);font-size:.9em}
+.fb span{cursor:pointer;font-size:1.35em;margin:0 8px;display:inline-block;transition:transform .15s ease}
+.fb span:hover{transform:scale(1.25)}
+
+/* ── 背景水印(心电图线+圆角十字) ── */
+.wrap{position:relative}
+.hero-art{position:absolute;top:26px;right:-20px;width:280px;height:280px;opacity:.04;pointer-events:none;color:var(--teal2);z-index:-1;animation:none!important}
+.ecg-art{position:absolute;top:170px;left:-10px;right:-10px;height:80px;opacity:.05;pointer-events:none;color:var(--teal);z-index:-1;animation:none!important}
+@media(max-width:820px){.hero-art{width:190px;right:-40px;opacity:.035}}
+.step .ic{width:17px;height:17px;stroke:var(--teal);fill:none;stroke-width:1.7;stroke-linecap:round;stroke-linejoin:round;vertical-align:-3px;margin-right:2px}
+.foot{margin-top:52px;border-top:1px solid var(--line);padding-top:18px;color:#8fa39d;font-size:.78em;line-height:1.75;text-align:center;max-width:640px;margin-left:auto;margin-right:auto}
 </style></head><body>
-<button class="langbtn" onclick="toggleLang()">中/EN</button>
-<h1>MediKin <small style="color:#999">家医管家</small></h1>
-<div class="tag" id="tag">Your family's medical paperwork, explained and remembered</div>
-<label>Family member 家庭成员 (e.g. 妈妈)</label><input id="member" type="text">
-<label>dockind</label><select id="dockind"><option>Medical bill 账单</option><option>Lab report 化验单</option><option>Insurance EOB 保险说明</option><option>Doctor's note 医嘱</option><option>Medication 用药</option></select>
-<label>Paste the document text 粘贴文件内容</label><textarea id="content" rows="7"></textarea>
-<label>Your question 你的问题 (可留空=帮我解读)</label><input id="question" type="text">
-<button id="go" onclick="ask()">Generate · 生成</button>
-<div id="out"></div>
-<div class="fb">Helpful? <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+<div class="bar"><span class="wm">MEDI<i>KIN</i></span><span class="cn">家医管家</span>
+<button class="langbtn" onclick="toggleLang()">中 / EN</button></div>
+<div class="wrap">
+<svg class="hero-art" viewBox="0 0 200 200" aria-hidden="true">
+ <rect x="70" y="30" width="60" height="140" rx="18" fill="currentColor"/>
+ <rect x="30" y="70" width="140" height="60" rx="18" fill="currentColor"/>
+</svg>
+<svg class="ecg-art" viewBox="0 0 760 80" preserveAspectRatio="none" aria-hidden="true">
+ <path d="M0 44 H210 l14 -10 14 10 H300 l10 -30 12 56 10 -46 8 20 H520 l14 -8 14 8 H760" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+  <div class="eyebrow" id="eyebrow"></div>
+  <h1 id="h1"></h1>
+  <div class="sub" id="sub"></div>
+  <div class="chips" id="chips"></div>
+
+  <div class="step"><span class="no">01</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M16 11a4 4 0 1 0-8 0"/><circle cx="12" cy="7" r="4"/><path d="M5 21v-2a7 7 0 0 1 14 0v2"/></svg><span id="s1"></span></span></div>
+  <div class="card">
+    <div class="row">
+      <div><label id="lb1"></label><input id="member" type="text"></div>
+      <div><label id="lb2"></label><select id="dockind"><option>Medical bill 账单</option><option>Lab report 化验单</option><option>Insurance EOB 保险说明</option><option>Doctor's note 医嘱</option><option>Medication 用药</option></select></div>
+    </div>
+  </div>
+
+  <div class="step"><span class="no">02</span><span class="st"><svg class="ic" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg><span id="s2"></span></span></div>
+  <div class="card">
+    <label id="lb3"></label>
+    <textarea id="content" rows="8"></textarea>
+    <label id="lb4"></label>
+    <input id="question" type="text">
+    <button id="go" class="go" onclick="ask()"></button>
+  </div>
+
+  <div class="report" id="report">
+    <div class="rhead"><span id="rt"></span><span class="coral serif">MK</span></div>
+    <div id="out"></div>
+  </div>
+  <div class="fb" id="fbrow" style="display:none"><span id="fbq"></span> <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+
+  <div class="foot" id="foot"></div>
+</div>
 <script>
 let lang = navigator.language.startsWith("zh") ? "Chinese" : "English";
-function toggleLang() { lang = lang === "Chinese" ? "English" : "Chinese";
-  document.getElementById("tag").textContent = lang === "Chinese" ? "替华人家庭看懂账单/化验单,并且记得住全家的健康档案" : "Your family's medical paperwork, explained and remembered"; }
-if (lang === "Chinese") document.getElementById("tag").textContent = "替华人家庭看懂账单/化验单,并且记得住全家的健康档案";
-async function ask() {
-  const btn = document.getElementById("go"), out = document.getElementById("out");
-  btn.disabled = true; out.textContent = "…";
-  try {
-    const resp = await fetch(window.APP_API + "/medikin/ask_stream", {method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({payload: {member: document.getElementById("member").value,dockind: document.getElementById("dockind").value,content: document.getElementById("content").value,question: document.getElementById("question").value}, lang: lang})});
-    out.textContent = "";
-    const rd = resp.body.getReader(), dec = new TextDecoder(); let buf = "";
-    while (true) {
-      const {done, value} = await rd.read(); if (done) break;
-      buf += dec.decode(value, {stream: true});
-      let i; while ((i = buf.indexOf("\n\n")) >= 0) {
-        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
-        if (!line.startsWith("data: ")) continue;
-        const d = JSON.parse(line.slice(6));
-        if (d.token) out.textContent += d.token;
+const I18N = {
+ Chinese: {
+  eyebrow:"家庭健康助手 · FAMILY HEALTH COMPANION",
+  h1:"看懂化验单，问对下一个问题。",
+  sub:"把医院报告、账单和症状说明翻译成家人能听懂的话，并告诉你哪些数值值得追问医生 —— 为替家人健康操心的你。",
+  chips:["<b>不存档</b> · 健康信息仅本次会话处理","<b>非诊断</b> · 助你问对医生","<b>中英双语</b> · 解读语言随你"],
+  s1:"这是谁的、什么文件", s2:"粘贴文件内容",
+  lb1:"家庭成员（例：妈妈）", lb2:"文件类型", lb3:"粘贴报告/账单/说明的文字内容（仅用于本次解读，不会被保存）",
+  lb4:"你想弄明白什么？（留空 = 帮我整体解读）",
+  go:"生成解读", rt:"健 康 解 读 · HEALTH BRIEF", fbq:"这份解读有帮助吗？",
+  ph:"例：把化验单上的项目和数值整段粘进来，看不懂的缩写也没关系……",
+  phq:"例：这个偏高要紧吗？下次复诊该问医生什么？",
+  phm:"例：妈妈",
+  foot:"MediKin 提供健康信息解读辅助，不构成医疗诊断或治疗建议（not medical advice）；如有急症请立即就医。你的健康信息仅在本次会话中处理，服务器不留存原文。"
+ },
+ English: {
+  eyebrow:"FAMILY HEALTH COMPANION",
+  h1:"Understand the report. Ask the right next question.",
+  sub:"Turns medical reports, bills and symptom notes into plain language your family can understand — and tells you which numbers are worth asking the doctor about.",
+  chips:["<b>Zero retention</b> · health info never stored","<b>Not a diagnosis</b> · helps you ask better questions","<b>Bilingual</b> · reads back in your language"],
+  s1:"Whose document is this?", s2:"Paste the document",
+  lb1:"Family member (e.g. Mom)", lb2:"Document type", lb3:"Paste the report / bill / note text (used for this reading only, never stored)",
+  lb4:"What do you want to understand? (leave blank = explain it all)",
+  go:"Explain It", rt:"HEALTH BRIEF", fbq:"Was this explanation helpful?",
+  ph:"e.g. paste the lab items and values as-is — unfamiliar abbreviations are fine…",
+  phq:"e.g. Is this elevated value serious? What should we ask at the follow-up?",
+  phm:"e.g. Mom",
+  foot:"MediKin provides help understanding health information; it is not medical diagnosis or treatment advice. For emergencies seek medical care immediately. Your health information is processed for this session only and never stored."
+ }
+};
+function render(){
+  const t=I18N[lang];
+  document.getElementById("eyebrow").textContent=t.eyebrow;
+  h1.textContent=t.h1; sub.textContent=t.sub;
+  chips.innerHTML=t.chips.map(c=>`<span class="chip">${c}</span>`).join("");
+  s1.textContent=t.s1; s2.textContent=t.s2;
+  lb1.textContent=t.lb1; lb2.textContent=t.lb2; lb3.textContent=t.lb3; lb4.textContent=t.lb4;
+  document.getElementById("go").textContent=t.go;
+  rt.textContent=t.rt; fbq.textContent=t.fbq; foot.textContent=t.foot;
+  document.getElementById("content").placeholder=t.ph;
+  document.getElementById("question").placeholder=t.phq;
+  document.getElementById("member").placeholder=t.phm;
+}
+function toggleLang(){ lang = lang==="Chinese"?"English":"Chinese"; render(); }
+render();
+async function ask(){
+  const btn=document.getElementById("go"), out=document.getElementById("out");
+  btn.disabled=true; document.getElementById("report").classList.add("on");
+  out.classList.add("cursor"); out.textContent="";
+  try{
+    const resp=await fetch(window.APP_API+"/medikin/ask_stream",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({payload:{member:document.getElementById("member").value,dockind:document.getElementById("dockind").value,content:document.getElementById("content").value,question:document.getElementById("question").value},lang:lang})});
+    const rd=resp.body.getReader(),dec=new TextDecoder();let buf="";
+    while(true){
+      const{done,value}=await rd.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n\n"))>=0){
+        const line=buf.slice(0,i).trim();buf=buf.slice(i+2);
+        if(!line.startsWith("data: "))continue;
+        const d=JSON.parse(line.slice(6));
+        if(d.token)out.textContent+=d.token;
       }
     }
-  } catch (e) { out.textContent = "Error: " + e; }
-  btn.disabled = false;
+    document.getElementById("fbrow").style.display="block";
+  }catch(e){out.textContent="Error: "+e;}
+  out.classList.remove("cursor"); btn.disabled=false;
 }
-function fb(s) { fetch(window.APP_API + "/medikin/feedback", {method: "POST",
-  headers: {"Content-Type": "application/json"}, body: JSON.stringify({score: s})}); alert("Thanks!"); }
+function fb(s){fetch(window.APP_API+"/medikin/feedback",{method:"POST",
+  headers:{"Content-Type":"application/json"},body:JSON.stringify({score:s})});alert(lang==="Chinese"?"已收到，谢谢！":"Thanks!");}
 </script><script>try{fetch(window.APP_API+"/scout/api/visit?app_=medikin&src="+(new URLSearchParams(location.search).get("src")||"")+"&ref="+encodeURIComponent(document.referrer))}catch(e){}</script></body></html>
