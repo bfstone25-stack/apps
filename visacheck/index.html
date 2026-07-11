@@ -1,51 +1,143 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>VisaCheck · 签途审计</title><script src="config.js"></script>
+<title>VisaCheck · 签途审计 — Pre-submission Immigration Audit</title><script src="config.js"></script>
 <style>
-body{font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif;max-width:720px;margin:0 auto;padding:24px;background:#fafaf7;color:#222}
-h1{font-size:1.6em;margin-bottom:4px} .tag{color:#777;margin-bottom:20px}
-label{display:block;margin:14px 0 4px;font-weight:600;font-size:.92em}
-input,select,textarea{width:100%;padding:10px;border:1px solid #ddd;border-radius:8px;font-size:1em;box-sizing:border-box;background:#fff}
-button{margin-top:18px;width:100%;padding:13px;border:0;border-radius:10px;background:#2c3e50;color:#fff;font-size:1.05em;cursor:pointer}
-button:disabled{opacity:.5} #out{white-space:pre-wrap;background:#fff;border:1px solid #eee;border-radius:10px;padding:16px;margin-top:20px;min-height:40px;line-height:1.65}
-.langbtn{float:right;background:none;border:1px solid #ccc;border-radius:6px;width:auto;padding:4px 10px;margin:0;color:#555;font-size:.85em}
-.fb{margin-top:10px;text-align:center;color:#999} .fb span{cursor:pointer;font-size:1.4em;margin:0 6px}
+:root{--navy:#16283f;--navy2:#0f1c2e;--ivory:#f7f5f0;--paper:#fffdf9;--ink:#1c2733;--dim:#6b7686;--gold:#b08d40;--gold2:#8a6d2f;--line:#e3ddd2;--ok:#2e7d4f}
+*{box-sizing:border-box}
+body{font-family:-apple-system,'PingFang SC','Microsoft YaHei','Segoe UI',sans-serif;margin:0;background:var(--ivory);color:var(--ink)}
+.serif{font-family:Georgia,'Times New Roman','Songti SC',serif}
+/* ── 顶栏 ── */
+.bar{background:var(--navy);color:#e9e4d8;padding:14px 22px;display:flex;align-items:baseline;gap:12px}
+.bar .wm{font-family:Georgia,serif;font-size:1.25em;letter-spacing:2.5px;font-weight:700}
+.bar .wm i{color:var(--gold);font-style:normal}
+.bar .cn{font-size:.85em;color:#b8ae97;letter-spacing:4px}
+.bar .langbtn{margin-left:auto;background:none;outline:1px solid #455770;border:0;border-radius:6px;padding:4px 12px;color:#c8c0ad;font-size:.82em;cursor:pointer}
+.bar .langbtn:hover{outline-color:var(--gold);color:#e9e4d8}
+/* ── 主体 ── */
+.wrap{max-width:760px;margin:0 auto;padding:34px 22px 60px}
+h1{font-family:Georgia,'Songti SC',serif;font-size:1.9em;line-height:1.3;margin:0 0 10px;color:var(--navy)}
+.sub{color:var(--dim);font-size:1.02em;line-height:1.6;margin-bottom:18px}
+.chips{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:30px}
+.chip{border:1px solid var(--line);background:var(--paper);border-radius:20px;padding:6px 14px;font-size:.82em;color:#55617a}
+.chip b{color:var(--gold2)}
+/* ── 步骤 ── */
+.step{display:flex;gap:14px;margin:26px 0 10px;align-items:baseline}
+.step .no{font-family:Georgia,serif;color:var(--gold);font-size:1.25em;font-weight:700;min-width:34px}
+.step .st{font-weight:700;font-size:1.02em;color:var(--navy)}
+.card{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px 22px;box-shadow:0 1px 3px rgba(22,40,63,.05)}
+label{display:block;margin:14px 0 6px;font-weight:600;font-size:.9em;color:#3c4a63}
+label:first-child{margin-top:0}
+input,select,textarea{width:100%;padding:11px 12px;border:1px solid var(--line);border-radius:8px;font-size:1em;background:#fff;color:var(--ink);font-family:inherit}
+select:focus,textarea:focus{outline:2px solid #b08d4055;border-color:var(--gold)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:560px){.row{grid-template-columns:1fr}}
+button.go{margin-top:22px;width:100%;padding:15px;border:0;border-radius:10px;background:var(--navy);color:#f0ead9;font-size:1.06em;letter-spacing:1px;cursor:pointer;font-weight:600}
+button.go:hover{background:var(--navy2);box-shadow:0 2px 10px rgba(176,141,64,.35)}
+button.go:disabled{opacity:.55;cursor:wait}
+/* ── 报告 ── */
+.report{display:none;margin-top:30px;background:var(--paper);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.report.on{display:block}
+.rhead{background:var(--navy);color:#e9e4d8;padding:12px 20px;font-family:Georgia,'Songti SC',serif;letter-spacing:2px;font-size:.92em;display:flex;justify-content:space-between;align-items:center}
+.rhead .gold{color:var(--gold)}
+#out{white-space:pre-wrap;padding:20px 22px;line-height:1.75;font-size:.96em;min-height:60px}
+.cursor::after{content:"▋";color:var(--gold);animation:bl 1s infinite}@keyframes bl{50%{opacity:0}}
+/* ── 反馈/页脚 ── */
+.fb{margin-top:14px;text-align:center;color:var(--dim);font-size:.9em}
+.fb span{cursor:pointer;font-size:1.35em;margin:0 8px}
+.foot{margin-top:44px;border-top:1px solid var(--line);padding-top:16px;color:#98a0ad;font-size:.78em;line-height:1.7}
 </style></head><body>
-<button class="langbtn" onclick="toggleLang()">中/EN</button>
-<h1>VisaCheck <small style="color:#999">签途审计</small></h1>
-<div class="tag" id="tag">Pre-submission audit for US immigration paperwork</div>
-<label>visatype</label><select id="visatype"><option>H-1B</option><option>OPT/STEM OPT</option><option>EB-1/NIW</option><option>EB-2/EB-3 PERM</option><option>I-485 AOS</option><option>F-1</option><option>O-1</option></select>
-<label>doctype</label><select id="doctype"><option>Recommendation letter 推荐信</option><option>Personal statement 个人陈述</option><option>Form data 表格信息</option><option>Employer letter 雇主信</option><option>Timeline 时间线</option></select>
-<label>Paste your draft / form data 粘贴草稿或表格关键信息</label><textarea id="content" rows="7"></textarea>
-<button id="go" onclick="ask()">Generate · 生成</button>
-<div id="out"></div>
-<div class="fb">Helpful? <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+<div class="bar"><span class="wm">VISA<i>CHECK</i></span><span class="cn">签途审计</span>
+<button class="langbtn" onclick="toggleLang()">中 / EN</button></div>
+<div class="wrap">
+  <h1 id="h1"></h1>
+  <div class="sub" id="sub"></div>
+  <div class="chips" id="chips"></div>
+
+  <div class="step"><span class="no">01</span><span class="st" id="s1"></span></div>
+  <div class="card">
+    <div class="row">
+      <div><label id="lb1"></label><select id="visatype"><option>H-1B</option><option>OPT / STEM OPT</option><option>EB-1 / NIW</option><option>EB-2 / EB-3 PERM</option><option>I-485 AOS</option><option>F-1</option><option>O-1</option></select></div>
+      <div><label id="lb2"></label><select id="doctype"></select></div>
+    </div>
+  </div>
+
+  <div class="step"><span class="no">02</span><span class="st" id="s2"></span></div>
+  <div class="card">
+    <label id="lb3"></label>
+    <textarea id="content" rows="8"></textarea>
+    <button id="go" class="go" onclick="ask()"></button>
+  </div>
+
+  <div class="report" id="report">
+    <div class="rhead"><span id="rt"></span><span class="gold serif">VC</span></div>
+    <div id="out"></div>
+  </div>
+  <div class="fb" id="fbrow" style="display:none"><span id="fbq"></span> <span onclick="fb(1)">👍</span><span onclick="fb(-1)">👎</span></div>
+
+  <div class="foot" id="foot"></div>
+</div>
 <script>
 let lang = navigator.language.startsWith("zh") ? "Chinese" : "English";
-function toggleLang() { lang = lang === "Chinese" ? "English" : "Chinese";
-  document.getElementById("tag").textContent = lang === "Chinese" ? "美国移民材料提交前纠错与RFE风险审计" : "Pre-submission audit for US immigration paperwork"; }
-if (lang === "Chinese") document.getElementById("tag").textContent = "美国移民材料提交前纠错与RFE风险审计";
-async function ask() {
-  const btn = document.getElementById("go"), out = document.getElementById("out");
-  btn.disabled = true; out.textContent = "…";
-  try {
-    const resp = await fetch(window.APP_API + "/visacheck/ask_stream", {method: "POST",
-      headers: {"Content-Type": "application/json"},
-      body: JSON.stringify({payload: {visatype: document.getElementById("visatype").value,doctype: document.getElementById("doctype").value,content: document.getElementById("content").value}, lang: lang})});
-    out.textContent = "";
-    const rd = resp.body.getReader(), dec = new TextDecoder(); let buf = "";
-    while (true) {
-      const {done, value} = await rd.read(); if (done) break;
-      buf += dec.decode(value, {stream: true});
-      let i; while ((i = buf.indexOf("\n\n")) >= 0) {
-        const line = buf.slice(0, i).trim(); buf = buf.slice(i + 2);
-        if (!line.startsWith("data: ")) continue;
-        const d = JSON.parse(line.slice(6));
-        if (d.token) out.textContent += d.token;
+const I18N = {
+ Chinese: {
+  h1:"在移民局之前，先找到你材料里的红旗。",
+  sub:"提交前 AI 审计：逐句检查你的移民材料，标出容易触发 RFE（补件通知）的措辞漏洞、逻辑断层与格式硬伤，并给出修改建议。",
+  chips:["<b>即审即焚</b> · 不存档你的材料","<b>RFE 风险导向</b> · 按审查官视角","<b>中英双语</b> · 报告语言随你"],
+  s1:"选择签证与材料类型", s2:"粘贴材料草稿",
+  lb1:"签证类型", lb2:"材料类型", lb3:"粘贴你的草稿或表格关键信息（内容仅用于本次审计，不会被保存）",
+  docs:["推荐信","个人陈述","表格信息","雇主信","申请时间线"],
+  go:"开始审计", rt:"审 计 报 告 · AUDIT REPORT", fbq:"这份审计有帮助吗？",
+  ph:"例：把推荐信全文粘进来，或粘表格里拿不准的段落……",
+  foot:"VisaCheck 提供的是提交前文书审查建议，不构成法律意见（not legal advice）；重大案件请咨询执业移民律师。你的材料仅在本次会话中处理，服务器不留存原文。"
+ },
+ English: {
+  h1:"Find the red flags before USCIS does.",
+  sub:"Pre-submission AI audit for US immigration paperwork: sentence-level review that flags RFE-prone wording, logic gaps and formatting issues — with concrete fixes.",
+  chips:["<b>Zero retention</b> · your draft is never stored","<b>RFE-risk focused</b> · officer's perspective","<b>Bilingual</b> · report in your language"],
+  s1:"Select visa & document type", s2:"Paste your draft",
+  lb1:"Visa type", lb2:"Document type", lb3:"Paste your draft or key form data (used for this audit only, never stored)",
+  docs:["Recommendation letter","Personal statement","Form data","Employer letter","Timeline"],
+  go:"Run Audit", rt:"AUDIT REPORT", fbq:"Was this audit helpful?",
+  ph:"e.g. paste the full recommendation letter, or the section you're unsure about…",
+  foot:"VisaCheck provides pre-submission document review suggestions, not legal advice. For complex cases consult a licensed immigration attorney. Your draft is processed for this session only and never stored."
+ }
+};
+function render(){
+  const t=I18N[lang];
+  h1.textContent=t.h1; sub.textContent=t.sub;
+  chips.innerHTML=t.chips.map(c=>`<span class="chip">${c}</span>`).join("");
+  s1.textContent=t.s1; s2.textContent=t.s2;
+  lb1.textContent=t.lb1; lb2.textContent=t.lb2; lb3.textContent=t.lb3;
+  const dt=document.getElementById("doctype"), cur=dt.selectedIndex;
+  dt.innerHTML=t.docs.map(d=>`<option>${d}</option>`).join(""); if(cur>=0)dt.selectedIndex=cur;
+  document.getElementById("go").textContent=t.go;
+  rt.textContent=t.rt; fbq.textContent=t.fbq; foot.textContent=t.foot;
+  document.getElementById("content").placeholder=t.ph;
+}
+function toggleLang(){ lang = lang==="Chinese"?"English":"Chinese"; render(); }
+render();
+async function ask(){
+  const btn=document.getElementById("go"), out=document.getElementById("out");
+  btn.disabled=true; document.getElementById("report").classList.add("on");
+  out.classList.add("cursor"); out.textContent="";
+  try{
+    const resp=await fetch(window.APP_API+"/visacheck/ask_stream",{method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({payload:{visatype:document.getElementById("visatype").value,doctype:document.getElementById("doctype").value,content:document.getElementById("content").value},lang:lang})});
+    const rd=resp.body.getReader(),dec=new TextDecoder();let buf="";
+    while(true){
+      const{done,value}=await rd.read();if(done)break;
+      buf+=dec.decode(value,{stream:true});
+      let i;while((i=buf.indexOf("\n\n"))>=0){
+        const line=buf.slice(0,i).trim();buf=buf.slice(i+2);
+        if(!line.startsWith("data: "))continue;
+        const d=JSON.parse(line.slice(6));
+        if(d.token)out.textContent+=d.token;
       }
     }
-  } catch (e) { out.textContent = "Error: " + e; }
-  btn.disabled = false;
+    document.getElementById("fbrow").style.display="block";
+  }catch(e){out.textContent="Error: "+e;}
+  out.classList.remove("cursor"); btn.disabled=false;
 }
-function fb(s) { fetch(window.APP_API + "/visacheck/feedback", {method: "POST",
-  headers: {"Content-Type": "application/json"}, body: JSON.stringify({score: s})}); alert("Thanks!"); }
+function fb(s){fetch(window.APP_API+"/visacheck/feedback",{method:"POST",
+  headers:{"Content-Type":"application/json"},body:JSON.stringify({score:s})});alert(lang==="Chinese"?"已收到，谢谢！":"Thanks!");}
 </script><script>try{fetch(window.APP_API+"/scout/api/visit?app_=visacheck&src="+(new URLSearchParams(location.search).get("src")||"")+"&ref="+encodeURIComponent(document.referrer))}catch(e){}</script></body></html>
