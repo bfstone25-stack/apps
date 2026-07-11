@@ -222,19 +222,40 @@ if('serviceWorker' in navigator){navigator.serviceWorker.register('sw.js').catch
 // controls
 document.addEventListener('keydown',e=>{const k={ArrowUp:[-1,0],ArrowDown:[1,0],ArrowLeft:[0,-1],ArrowRight:[0,1]}[e.key];
  if(k){e.preventDefault();move(k[0],k[1]);}});
-let sx,sy;
+// pointer gesture (mouse drag + touch swipe); one move per gesture
 const bw=document.getElementById('boardWrap');
-bw.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;sy=e.touches[0].clientY},{passive:true});
-bw.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[0].clientX-sx,dy=e.changedTouches[0].clientY-sy;
- if(Math.max(Math.abs(dx),Math.abs(dy))<24)return;
- if(Math.abs(dx)>Math.abs(dy))move(0,dx>0?1:-1);else move(dy>0?1:-1,0);sx=null},{passive:true});
+bw.style.touchAction='none';
+const SWIPE_TH=24;
+let ptr=null; // {id,sx,sy,fired}
+function fireSwipe(dx,dy){
+ if(Math.max(Math.abs(dx),Math.abs(dy))<SWIPE_TH) return false;
+ if(Math.abs(dx)>Math.abs(dy)) move(0,dx>0?1:-1); else move(dy>0?1:-1,0);
+ return true;
+}
+bw.addEventListener('pointerdown',e=>{
+ if(e.target.closest('.overlay')&&document.getElementById('win').style.display==='flex')return;
+ ptr={id:e.pointerId,sx:e.clientX,sy:e.clientY,fired:false};
+ try{bw.setPointerCapture(e.pointerId);}catch(_){}
+});
+bw.addEventListener('pointermove',e=>{
+ if(!ptr||e.pointerId!==ptr.id||ptr.fired)return;
+ if(fireSwipe(e.clientX-ptr.sx,e.clientY-ptr.sy)) ptr.fired=true;
+});
+function endPtr(e){
+ if(!ptr||e.pointerId!==ptr.id)return;
+ if(!ptr.fired) fireSwipe(e.clientX-ptr.sx,e.clientY-ptr.sy);
+ ptr=null;
+ try{bw.releasePointerCapture(e.pointerId);}catch(_){}
+}
+bw.addEventListener('pointerup',endPtr);
+bw.addEventListener('pointercancel',endPtr);
 window.addEventListener('resize',()=>{layout();render();});
 fetch('levels.json').then(r=>r.json()).then(d=>{if(Array.isArray(d)&&d.length){LEVELS=d;}}).catch(()=>{}).finally(()=>load(Math.min(parseInt(localStorage.getItem('fold_cur')||'0')||0, LEVELS.length-1)));
 
 /* ---- intro overlay ---- */
 const INTRO_T={
-  zh:{t:'归一',s:'一款关于"合而为一"的禅意谜题',r:['滑动方向键，所有数字块一起滑动','相同数字相撞即合并翻倍','把全部数字归为一块、恰好等于目标数，即为归一。步数越少越接近"道"'],f:'51关精选 + 150关无限模式',b:'入局'},
-  en:{t:'FOLD',s:'A zen puzzle of becoming one',r:['Swipe/arrow keys move ALL tiles together','Equal tiles merge and double on collision','Fold everything into ONE tile equal to the target. Fewer moves, closer to the Way'],f:'51 curated + 150 endless levels',b:'Begin'}
+  zh:{t:'归一',s:'一款关于"合而为一"的禅意谜题',r:['滑动棋盘（鼠标拖拽/手指滑动）或按方向键，所有数字块一起滑动','相同数字相撞即合并翻倍','把全部数字归为一块、恰好等于目标数，即为归一。步数越少越接近"道"'],f:'51关精选 + 150关无限模式',b:'入局'},
+  en:{t:'FOLD',s:'A zen puzzle of becoming one',r:['Swipe/drag the board or press arrow keys — ALL tiles slide together','Equal tiles merge and double on collision','Fold everything into ONE tile equal to the target. Fewer moves, closer to the Way'],f:'51 curated + 150 endless levels',b:'Begin'}
 };
 function openIntro(){
   const t=INTRO_T[lang]||INTRO_T.zh;

@@ -11,6 +11,8 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Georgia','Songti SC'
 @keyframes rain{to{transform:translateY(120vh)}}
 .vig{position:absolute;inset:0;z-index:2;pointer-events:none;box-shadow:inset 0 0 160px 40px #000;background:radial-gradient(60% 50% at 50% 30%,transparent,rgba(0,0,0,.5))}
 .lang{position:absolute;top:12px;right:12px;z-index:30;background:rgba(255,255,255,.06);border:1px solid #333;color:#998;border-radius:4px;padding:5px 11px;font-size:.78em;cursor:pointer;font-family:monospace}
+/* 扩大小按钮触屏命中区至≥44px，不改视觉 */
+.lang::after,.help::after{content:"";position:absolute;inset:-9px}
 /* 卷宗 */
 .dossier{position:relative;z-index:5;margin:44px 14px 8px;padding:14px 16px;background:linear-gradient(180deg,#16171b,#101114);border:1px solid #2a2c33;border-left:3px solid #a1332b;border-radius:3px;box-shadow:0 8px 30px rgba(0,0,0,.6)}
 .stamp{position:absolute;top:-12px;right:12px;font-family:monospace;font-size:.62em;letter-spacing:2px;color:#a1332b;border:2px solid #a1332b;padding:2px 8px;border-radius:3px;transform:rotate(-6deg);opacity:.85}
@@ -38,7 +40,7 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Georgia','Songti SC'
 .inrow{display:flex;gap:8px;margin-top:11px}
 #inp{flex:1;background:#0d0e11;border:1px solid #33353d;color:#e0dbd0;border-radius:4px;padding:11px 14px;font-size:1em;font-family:inherit;outline:none}
 #inp:focus{border-color:#d4a24e}
-#send{background:#d4a24e;border:0;border-radius:4px;padding:0 16px;color:#1a1400;font-weight:800;cursor:pointer;transition:.12s}
+#send{background:#d4a24e;border:0;border-radius:4px;padding:0 16px;min-width:52px;min-height:44px;color:#1a1400;font-weight:800;cursor:pointer;transition:.12s}
 #send:active{transform:scale(.9)}#send:disabled{opacity:.4}
 .bar{display:flex;justify-content:space-between;align-items:center;margin-top:9px}
 .q{font-family:monospace;font-size:.74em;color:#8a8478;letter-spacing:1px}
@@ -165,6 +167,11 @@ function share(n,grid){const txt=`破绽 TELL · Case ${S.day}\n${S.title}\n${gr
 function pid(){let p=localStorage.getItem("tell_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("tell_pid",p);}return p;}
 function toggleLang(){lang=lang==="zh"?"en":"zh";if(!done)load();}
 document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")send();});
+// 移动端：软键盘弹出时保证对话框可见（visualViewport优先，退化为scrollIntoView）
+(function(){const inp=document.getElementById("inp"),dbox=document.querySelector(".dbox");
+ function reveal(){if(document.activeElement===inp)dbox.scrollIntoView({block:"end",behavior:"smooth"});}
+ inp.addEventListener("focus",()=>setTimeout(reveal,300));
+ if(window.visualViewport)visualViewport.addEventListener("resize",reveal);})();
 const IT={zh:{h:"破绽",lede:"审讯室的灯只照着一把椅子。嫌疑人就坐在那里——案卷里没写的细节，只有凶手知道。",
  r:["每日一案，你是审讯官，自由提问。","嫌疑人会撒谎、绕圈、露馅——诱使TA说出“未公开的案情细节”。","抓到破绽后正式指控。问得越少，段位越高。"],go:"开始审讯"},
  en:{h:"TELL",lede:"One lamp. One chair. The suspect knows details that never made the papers—details only the killer could know.",

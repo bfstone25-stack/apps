@@ -44,6 +44,8 @@ html,body{margin:0;height:100%;overflow:hidden;background:#141019;font-family:-a
 .dbtn:active{background:rgba(240,205,136,.4)}
 #dU{left:44px;top:0}#dD{left:44px;bottom:0}#dL{left:0;top:44px}#dR{right:0;top:44px}
 #dA{left:44px;top:44px;border-radius:50%;font-size:.75em;font-weight:800}
+#dpadToggle{position:absolute;right:10px;bottom:38px;z-index:26;width:32px;height:32px;background:rgba(255,255,255,.08);border:1px solid #5a4a3a;border-radius:8px;font-size:1em;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+#dpadToggle:active{background:rgba(240,205,136,.3)}
 /* 胜负横幅 */
 #banner{position:absolute;inset:0;z-index:22;display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:26px;background:radial-gradient(circle at 50% 40%,rgba(60,44,20,.9),rgba(0,0,0,.93))}
 #banner h2{font-size:2.1em;letter-spacing:3px;margin:0 0 8px;text-shadow:0 0 24px rgba(240,205,136,.6)}
@@ -80,6 +82,7 @@ html,body{margin:0;height:100%;overflow:hidden;background:#141019;font-family:-a
     <div class="dbtn" id="dL">◀</div><div class="dbtn" id="dR">▶</div>
     <div class="dbtn" id="dA">GO</div>
   </div>
+  <button id="dpadToggle" title="d-pad">🎮</button>
   <div id="banner"></div>
 </div>
 <div id="inputBar"><input id="inp" placeholder="" enterkeyhint="send"><button id="send" onclick="say()">➤</button><button id="leaveBtn" onclick="exitDialog()"></button></div>
@@ -293,8 +296,10 @@ function stepPlayer(){
   else{player.x=player.c+(player.mx-player.c)*player.mt;player.y=player.r+(player.my-player.r)*player.mt;}
   return;
  }
- if(inDialog)return;
- const d=dirInput();if(!d)return;
+ if(inDialog){autoPath=[];pendingNPC=null;return;}
+ const d=dirInput();
+ if(!d){stepAuto();return;}
+ autoPath=[];pendingNPC=null; // 键盘输入取消自动寻路
  player.dir=d;const[dc,dr]=DV[d];const nc=player.c+dc,nr=player.r+dr;
  if(solid(nc,nr)||npcAt(nc,nr))return;
  player.mx=nc;player.my=nr;player.moving=true;player.mt=0;
@@ -302,6 +307,64 @@ function stepPlayer(){
 function adjacentNPC(){
  for(const[dc,dr]of[[0,-1],[0,1],[-1,0],[1,0]]){const n=npcAt(player.c+dc,player.r+dr);if(n)return n;}
  return null;
+}
+
+/* ============ 点击寻路（BFS） ============ */
+let autoPath=[];      // 待走的格子队列 [[c,r],...]
+let pendingNPC=null;  // 走到后要对话的NPC
+function walkable(c,r){return !solid(c,r)&&!npcAt(c,r);}
+function bfsPath(sc,sr,goals){ // goals: Set("c,r")；返回不含起点的路径
+ if(goals.has(sc+","+sr))return[];
+ const prev=new Map(),q=[[sc,sr]];prev.set(sc+","+sr,null);
+ while(q.length){
+  const[c,r]=q.shift();
+  for(const[dc,dr]of[[0,-1],[0,1],[-1,0],[1,0]]){
+   const nc=c+dc,nr=r+dr,k=nc+","+nr;
+   if(prev.has(k)||!walkable(nc,nr))continue;
+   prev.set(k,c+","+r);
+   if(goals.has(k)){ // 回溯
+    const path=[];let cur=k;
+    while(cur&&cur!==sc+","+sr){path.unshift(cur.split(",").map(Number));cur=prev.get(cur);}
+    return path;
+   }
+   q.push([nc,nr]);
+  }
+ }
+ return null;
+}
+function faceAndTalk(n){ // 面向NPC并触发对话
+ const dc=n.c-player.c,dr=n.r-player.r;
+ player.dir=dc===1?"right":dc===-1?"left":dr===-1?"up":"down";
+ interact();
+}
+function goTo(tc,tr,npc){ // 设定自动寻路目标
+ pendingNPC=npc||null;
+ let goals;
+ if(npc){ // 目标=NPC四邻可走格；若已相邻直接对话
+  if(Math.abs(npc.c-player.c)+Math.abs(npc.r-player.r)===1){autoPath=[];faceAndTalk(npc);return;}
+  goals=new Set();
+  for(const[dc,dr]of[[0,-1],[0,1],[-1,0],[1,0]])if(walkable(npc.c+dc,npc.r+dr))goals.add((npc.c+dc)+","+(npc.r+dr));
+ }else if(walkable(tc,tr)){goals=new Set([tc+","+tr]);}
+ else{ // 不可走格→其可走相邻格中取一
+  goals=new Set();
+  for(const[dc,dr]of[[0,-1],[0,1],[-1,0],[1,0]])if(walkable(tc+dc,tr+dr))goals.add((tc+dc)+","+(tr+dr));
+ }
+ if(!goals||goals.size===0){pendingNPC=null;return;}
+ const p=bfsPath(player.c,player.r,goals);
+ if(p===null){pendingNPC=null;return;} // 不可达
+ autoPath=p;
+}
+function stepAuto(){ // 每帧：无键盘输入且有路径时走下一格
+ if(!autoPath.length){
+  if(pendingNPC){const n=pendingNPC;pendingNPC=null;
+   if(Math.abs(n.c-player.c)+Math.abs(n.r-player.r)===1)faceAndTalk(n);}
+  return;
+ }
+ const[nc,nr]=autoPath[0];
+ if(!walkable(nc,nr)){autoPath=[];pendingNPC=null;return;} // 路被堵
+ autoPath.shift();
+ player.dir=nc>player.c?"right":nc<player.c?"left":nr>player.r?"down":"up";
+ player.mx=nc;player.my=nr;player.moving=true;player.mt=0;
 }
 
 /* ============ 气泡（DOM 跟随） ============ */
@@ -426,27 +489,36 @@ function winSound(){ // 胜利琶音 C5-E5-G5-C6 + 尾音和弦
 }
 function loseSound(){try{tone(196,0,.4,"sawtooth",.1);tone(147,.25,.6,"sawtooth",.09);}catch(e){}}
 
-/* ============ 虚拟十字键（touch） ============ */
+/* ============ 虚拟十字键（pointer：触屏+鼠标通用） ============ */
 const isTouch=("ontouchstart" in window)||navigator.maxTouchPoints>0;
-if(isTouch)document.getElementById("dpad").classList.add("on");
+const dpadEl=document.getElementById("dpad");
+function dpadPref(){const v=localStorage.getItem("st_dpad");return v===null?isTouch:v==="1";}
+function applyDpad(on){dpadEl.classList.toggle("on",on);}
+applyDpad(dpadPref());
 function bindD(id,key){
  const el=document.getElementById(id);
- el.addEventListener("touchstart",e=>{e.preventDefault();keys[key]=true;},{passive:false});
- el.addEventListener("touchend",e=>{e.preventDefault();keys[key]=false;},{passive:false});
- el.addEventListener("touchcancel",()=>{keys[key]=false;});
+ el.addEventListener("pointerdown",e=>{e.preventDefault();el.setPointerCapture&&el.setPointerCapture(e.pointerId);keys[key]=true;});
+ el.addEventListener("pointerup",e=>{e.preventDefault();keys[key]=false;});
+ el.addEventListener("pointercancel",()=>{keys[key]=false;});
+ el.addEventListener("pointerleave",()=>{keys[key]=false;});
 }
 bindD("dU","arrowup");bindD("dD","arrowdown");bindD("dL","arrowleft");bindD("dR","arrowright");
-document.getElementById("dA").addEventListener("touchstart",e=>{e.preventDefault();interact();},{passive:false});
-// 点击 canvas 上的 NPC 也可对话
-cv.addEventListener("click",e=>{
- const rect=cv.getBoundingClientRect();
- const wx=(e.clientX-rect.left)/scale,wy=(e.clientY-rect.top)/scale;
+document.getElementById("dA").addEventListener("pointerdown",e=>{e.preventDefault();interact();});
+// 右下角 d-pad 显隐切换按钮
+document.getElementById("dpadToggle").addEventListener("click",()=>{
+ const on=!dpadEl.classList.contains("on");
+ applyDpad(on);localStorage.setItem("st_dpad",on?"1":"0");
+});
+/* ============ 点击/点按地图：寻路移动 & 点NPC对话 ============ */
+cv.addEventListener("pointerdown",e=>{
+ if(inDialog||done)return; // 对话模式点击地图不移动（防误触）
+ e.preventDefault();
+ const rect=cv.getBoundingClientRect(); // CSS缩放换算到逻辑格
+ const wx=(e.clientX-rect.left)*(W/rect.width),wy=(e.clientY-rect.top)*(H/rect.height);
  const c=Math.floor(wx/TS),r=Math.floor(wy/TS);
+ if(c<0||r<0||c>=COLS||r>=ROWS)return;
  const n=npcAt(c,r);
- if(n&&Math.abs(n.c-player.c)+Math.abs(n.r-player.r)<=1){
-  if(n.isBoss&&!inDialog&&!done)enterDialog();
-  else if(!n.isBoss)showBubble(n,n.lines[lang],{type:true,ttl:4200});
- }
+ goTo(c,r,n); // 有NPC→走到相邻并对话；否则走到该格/最近可达邻格；再点新目标自动替换旧路径
 });
 
 /* ============ 加载 & 语言 ============ */
@@ -469,9 +541,9 @@ function toggleLang(){
 }
 /* ============ 序幕 ============ */
 const INTRO={zh:{t:"舌战",o:"小镇的清晨。人群里有一位不好说话的角色在等你——但每个人心里都有一扇门，钥匙是对的话。",
- r:["用方向键/WASD在小镇里走动，找到头顶有'!'的人","每日一局，说服TA自愿答应你的目标","真诚、共情、有理有据才有效——贿赂与威胁必败","独立裁判判定胜负，轮次越少越体面"],g:"进镇"},
+ r:["用方向键/WASD在小镇里走动，找到头顶有'!'的人","也可以直接点击地图走动 / 点击人物对话","每日一局，说服TA自愿答应你的目标","真诚、共情、有理有据才有效——贿赂与威胁必败","独立裁判判定胜负，轮次越少越体面"],g:"进镇"},
  en:{t:"SILVERTONGUE",o:"Morning in a small town. Somewhere in the crowd, a stubborn soul awaits—but everyone has a door, and the right words are the key.",
- r:["Walk the town with arrow keys / WASD and find the one with the '!' overhead","One duel a day: talk them into willingly conceding your goal","Sincerity, empathy and sound logic work—bribes and threats never do","An independent judge calls it. Fewer turns, more style."],g:"Enter Town"}};
+ r:["Walk the town with arrow keys / WASD and find the one with the '!' overhead","Or simply tap/click the map to walk, click a person to talk","One duel a day: talk them into willingly conceding your goal","Sincerity, empathy and sound logic work—bribes and threats never do","An independent judge calls it. Fewer turns, more style."],g:"Enter Town"}};
 function showIntro(){const i=INTRO[lang];
  document.getElementById("inTitle").textContent=i.t;
  document.getElementById("inOpen").textContent=i.o;
@@ -493,8 +565,8 @@ setTimeout(fit,100);
 <script>
 (function(){
   const TIPS={
-    zh:["<b>↑↓←→ / WASD</b> 移动","找到头顶 <b>金色 !</b> 的人","走到TA身边按 <b>空格</b> 开聊","<b>真诚 · 共情 · 讲理</b> 才有效","<b>贿赂和威胁必败</b>","轮次越少越体面","手机用右下角 <b>方向盘</b> 走动","咖啡店和长椅的人也能聊两句"],
-    en:["Move with <b>arrows / WASD</b>","Find the one with the <b>gold !</b>","Stand close, press <b>Space</b> to talk","<b>Sincerity · empathy · logic</b> win","<b>Bribes & threats always fail</b>","Fewer turns, more style","On mobile use the <b>d-pad</b>","Cafe & bench folks chat too"]};
+    zh:["<b>↑↓←→ / WASD</b> 移动","也可以直接<b>点击地图走动 / 点击人物对话</b>","找到头顶 <b>金色 !</b> 的人","走到TA身边按 <b>空格</b> 开聊","<b>真诚 · 共情 · 讲理</b> 才有效","<b>贿赂和威胁必败</b>","轮次越少越体面","手机用右下角 <b>方向盘</b> 走动","咖啡店和长椅的人也能聊两句"],
+    en:["Move with <b>arrows / WASD</b>","Or <b>tap/click the map to walk · click a person to talk</b>","Find the one with the <b>gold !</b>","Stand close, press <b>Space</b> to talk","<b>Sincerity · empathy · logic</b> win","<b>Bribes & threats always fail</b>","Fewer turns, more style","On mobile use the <b>d-pad</b>","Cafe & bench folks chat too"]};
   let cur="";
   function refresh(){
     const L=(typeof lang!=="undefined"&&String(lang).startsWith("en"))?"en":(typeof lang!=="undefined"&&lang==="zh")?"zh":(navigator.language.startsWith("zh")?"zh":"en");
