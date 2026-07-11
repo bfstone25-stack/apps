@@ -44,10 +44,29 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,'PingFa
 .burst{position:absolute;font-size:1.5em;animation:burst 1.1s ease-out forwards}
 @keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 .share{background:linear-gradient(180deg,#e6b45c,#d0913c);border:0;color:#2a1c08;border-radius:10px;padding:12px 26px;font-weight:800;cursor:pointer;font-size:1em}
+/* 序幕 */
+#introOv{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(10,8,4,.85);padding:22px;backdrop-filter:blur(3px)}
+.intro-card{max-width:440px;width:100%;background:linear-gradient(180deg,#241a12,#171017);border:1px solid #5a4a36;border-top:3px solid transparent;border-radius:16px;padding:26px 24px 22px;box-shadow:0 0 60px rgba(224,169,78,.18),0 20px 50px rgba(0,0,0,.6);position:relative;overflow:hidden}
+.intro-card::before{content:"";position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#8a6a34,#f0cd88,#e0a94e,#8a6a34)}
+.intro-title{font-size:1.5em;font-weight:800;letter-spacing:3px;color:#f0cd88;text-align:center;margin:4px 0 12px;text-shadow:0 0 18px rgba(240,205,136,.35)}
+.intro-open{color:#d8c39a;font-size:.95em;line-height:1.7;text-align:center;margin-bottom:16px;font-style:italic}
+.intro-rules{color:#c9b48f;font-size:.88em;line-height:1.75}
+.intro-rules div{margin-bottom:7px}
+.intro-rules b{color:#e0a94e;margin-right:6px}
+.intro-go{display:block;width:100%;margin-top:18px;background:linear-gradient(180deg,#e6b45c,#d0913c);border:0;border-radius:12px;padding:13px;color:#2a1c08;font-weight:800;font-size:1.05em;cursor:pointer;letter-spacing:1px}
+.intro-go:active{transform:scale(.97)}
+.helpbtn{position:absolute;top:12px;left:12px;z-index:30;width:30px;height:30px;background:rgba(255,255,255,.08);border:1px solid #5a4a3a;color:#c9b48f;border-radius:50%;font-size:.9em;cursor:pointer}
 </style></head><body>
 <div id="app">
 <div id="scene"></div><div class="spot"></div><div class="motes" id="motes"></div><div class="vig"></div>
 <button class="lang" onclick="toggleLang()">中/EN</button>
+<button class="helpbtn" onclick="showIntro()">?</button>
+<div id="introOv"><div class="intro-card">
+  <div class="intro-title" id="inTitle"></div>
+  <div class="intro-open" id="inOpen"></div>
+  <div class="intro-rules" id="inRules"></div>
+  <button class="intro-go" id="inGo" onclick="closeIntro()"></button>
+</div></div>
 <div class="obj"><div class="day" id="day"></div><div class="goal" id="goal">…</div><div class="diff" id="diff"></div></div>
 <div class="stage"><div class="portrait" id="portrait">🗣️</div><div class="cname" id="cname"></div></div>
 <div class="dbox">
@@ -117,5 +136,17 @@ function share(n,grid){const txt=`舌战 Silvertongue · Day ${S.day}\n${S.goal}
 function pid(){let p=localStorage.getItem("st_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("st_pid",p);}return p;}
 function toggleLang(){lang=lang==="zh"?"en":"zh";if(!done){hist=[];turns=0;done=false;document.getElementById("end").style.display="none";load();}}
 document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")say();});
+const INTRO={zh:{t:"舌战",o:"聚光灯亮起。对面的人不好说话——但每个人心里都有一扇门，钥匙是对的话。",
+ r:["每日一局，说服眼前的角色自愿答应你的目标","真诚、共情、有理有据才有效——贿赂与威胁必败","独立裁判判定胜负，轮次越少越体面"],g:"上台"},
+ en:{t:"SILVERTONGUE",o:"The spotlight is on. They won't budge easily—but everyone has a door, and the right words are the key.",
+ r:["One duel a day: talk the character into willingly conceding your goal","Sincerity, empathy and sound logic work—bribes and threats never do","An independent judge calls it. Fewer turns, more style."],g:"Take the Stage"}};
+function showIntro(){const i=INTRO[lang];
+ document.getElementById("inTitle").textContent=i.t;
+ document.getElementById("inOpen").textContent=i.o;
+ document.getElementById("inRules").innerHTML=i.r.map(x=>`<div><b>◆</b>${x}</div>`).join("");
+ document.getElementById("inGo").textContent=i.g;
+ document.getElementById("introOv").style.display="flex";}
+function closeIntro(){document.getElementById("introOv").style.display="none";localStorage.setItem("st_intro_seen","1");}
+if(!localStorage.getItem("st_intro_seen"))showIntro();
 load();
 </script></body></html>

@@ -69,9 +69,37 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,'PingFa
 .burst{position:absolute;font-size:1.6em;animation:burst 1.1s ease-out forwards}
 @keyframes burst{to{transform:translate(var(--dx),var(--dy)) scale(0);opacity:0}}
 .back{position:absolute;top:12px;left:12px;z-index:8;background:rgba(255,255,255,.55);border:0;border-radius:20px;padding:5px 12px;font-size:.8em;cursor:pointer}
+.card .hk{font-size:.76em;margin-top:6px;color:#a8798d;font-style:italic;line-height:1.4}
+
+/* ---------- 序幕 Prologue ---------- */
+#prologueOv{position:fixed;inset:0;z-index:60;display:none;align-items:center;justify-content:center;padding:22px;
+  background:linear-gradient(170deg,rgba(24,16,34,.9),rgba(46,22,44,.88) 55%,rgba(20,14,30,.92));backdrop-filter:blur(8px)}
+#prologueOv.show{display:flex}
+.plg-card{width:100%;max-width:420px;border-radius:18px;padding:34px 28px 30px;text-align:center;position:relative;
+  background:linear-gradient(165deg,rgba(56,32,52,.92),rgba(38,24,44,.94));
+  border:1px solid rgba(233,180,160,.28);box-shadow:0 0 60px rgba(232,122,168,.22),0 24px 60px rgba(0,0,0,.5)}
+.plg-card::before{content:"";position:absolute;inset:0;border-radius:18px;pointer-events:none;
+  background:radial-gradient(60% 40% at 50% 0%,rgba(240,180,190,.12),transparent 70%)}
+.plg-star{font-size:1.5em;margin-bottom:14px;opacity:0;animation:plgIn 1.2s ease forwards .2s}
+.plg-p{color:#f3dde2;font-size:.98em;line-height:1.85;margin:0 0 16px;opacity:0;animation:plgIn 1.2s ease forwards;letter-spacing:.4px}
+.plg-p.names{color:#eec9a8;font-size:.9em;letter-spacing:1px}
+.plg-p:nth-of-type(1){animation-delay:.5s}.plg-p:nth-of-type(2){animation-delay:1.6s}
+.plg-p:nth-of-type(3){animation-delay:3s}.plg-p:nth-of-type(4){animation-delay:4s}
+@keyframes plgIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.plg-btn{margin-top:10px;padding:12px 38px;border:0;border-radius:26px;cursor:pointer;font-size:1em;font-weight:700;letter-spacing:2px;
+  color:#4a2c38;background:linear-gradient(135deg,#f4cfa6,#eda9bd 60%,#e78ab0);
+  box-shadow:0 6px 22px rgba(232,122,168,.4),inset 0 1px 0 rgba(255,255,255,.5);
+  opacity:0;animation:plgIn 1.2s ease forwards 4.9s;transition:transform .15s}
+.plg-btn:active{transform:scale(.95)}
+.help{position:absolute;top:12px;right:78px;z-index:30;width:30px;height:30px;background:rgba(255,255,255,.55);border:0;border-radius:50%;font-size:.85em;cursor:pointer;backdrop-filter:blur(6px);color:#a85f7e;font-weight:800}
 </style></head><body>
 <div id="app">
 <button class="lang" onclick="toggleLang()">中/EN</button>
+<button class="help" onclick="showPrologue()" title="Prologue">?</button>
+
+<div id="prologueOv">
+  <div class="plg-card" id="plgCard"></div>
+</div>
 
 <div id="select">
   <h1>怦然</h1><div class="sub" id="ssub">Flutter · 他，真的会记得你</div>
@@ -108,6 +136,30 @@ const T={zh:{sub:"他，真的会记得你",aff:"好感",ph:"说点什么…",
   chips:["I missed you","Brought you coffee","Talk with me","You look lovely today"]}};
 function tr(){return T[lang]}
 
+/* ---------- 序幕 Prologue ---------- */
+const PLG={zh:{p:["加班到十一点，地铁上人很少。",
+  "你刷着手机，突然想：要是有个人，能记得我随口说过的每一句话——记得我讨厌香菜，记得我上周说想去看海，记得我今天说了“好累”。",
+  "在这里，有三个人会这样记得你。",
+  "冷静自持的医生顾言 · 炽热直接的机车手陆行野 · 温柔缜密的律师傅深"],btn:"遇见他们"},
+ en:{p:["Eleven p.m. Overtime again. The train is almost empty.",
+  "You scroll your phone and wonder—what if someone remembered every little thing you ever said? That you hate cilantro. That last week you wanted to see the ocean. That today you said 'I'm so tired.'",
+  "Here, three people will remember you exactly like that.",
+  "Gu Yan, the composed doctor · Lu Xingye, the ardent rider · Fu Shen, the gentle lawyer"],btn:"Meet Them"}};
+const HOOKS={guyan:{zh:"他不多话，但你说过的他都记得。",en:"He doesn't say much—but he remembers everything you say."},
+ luxingye:{zh:"他的世界很吵，唯独听你的时候很安静。",en:"His world is loud, yet he goes quiet just to listen to you."},
+ fushen:{zh:"他能赢所有辩论，却总让着你。",en:"He wins every argument—except the ones with you."}};
+function showPrologue(){
+ const P=PLG[lang];
+ document.getElementById("plgCard").innerHTML=`<div class="plg-star">🌙✨</div>`+
+   P.p.map((t,i)=>`<p class="plg-p${i===3?" names":""}">${t}</p>`).join("")+
+   `<button class="plg-btn" onclick="closePrologue()">${P.btn}</button>`;
+ document.getElementById("prologueOv").classList.add("show");
+}
+function closePrologue(){
+ localStorage.setItem("flutter_prologue_seen","1");
+ document.getElementById("prologueOv").classList.remove("show");
+}
+
 async function boot(){
  R=await (await fetch(API+"/routes?lang="+lang)).json();
  document.getElementById("ssub").textContent="Flutter · "+tr().sub;
@@ -116,7 +168,8 @@ async function boot(){
    return `<div class="card" style="background:linear-gradient(135deg,${g},${g2})" onclick="startRoute('${r.id}')">
      <div class="por" style="background-image:url('portraits/${r.id}.jpg');background-size:cover;background-position:top center"></div>
      <div><div class="nm" style="color:${r.accent}">${r.name}</div>
-       <div class="ti">${r.title}</div><div class="tg">${r.tag}</div></div></div>`;}).join("");
+       <div class="ti">${r.title}</div><div class="tg">${r.tag}</div>${HOOKS[r.id]?`<div class="hk">${HOOKS[r.id][lang]}</div>`:""}</div></div>`;}).join("");
+ if(!localStorage.getItem("flutter_prologue_seen"))showPrologue();
 }
 function petals(hue){
  const p=document.getElementById("particles");p.innerHTML="";
@@ -213,7 +266,9 @@ function celebrate(txt){
 }
 function goSelect(){document.getElementById("game").style.display="none";document.getElementById("select").style.display="flex";}
 function pid(){let p=localStorage.getItem("flutter_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("flutter_pid",p);}return p;}
-function toggleLang(){lang=lang==="zh"?"en":"zh";if(route){renderChips();document.getElementById("afflab").textContent=tr().aff;document.getElementById("inp").placeholder=tr().ph;}else boot();}
+function toggleLang(){lang=lang==="zh"?"en":"zh";
+ if(document.getElementById("prologueOv").classList.contains("show"))showPrologue();
+ if(route){renderChips();document.getElementById("afflab").textContent=tr().aff;document.getElementById("inp").placeholder=tr().ph;}else boot();}
 document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")say();});
 boot();
 </script></body></html>

@@ -52,10 +52,22 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Georgia','Songti SC'
 .share{background:#d4a24e;border:0;color:#1a1400;border-radius:5px;padding:12px 26px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:1px}
 .rev{color:#b6b1a6;font-size:.92em;line-height:1.6;margin:6px 0;max-width:360px}
 .back{position:absolute;top:12px;left:12px;z-index:8;background:rgba(255,255,255,.06);border:1px solid #333;color:#998;border-radius:4px;padding:5px 11px;font-size:.78em;cursor:pointer;font-family:monospace}
+/* 序幕 intro */
+.help{position:absolute;top:12px;right:88px;z-index:30;background:rgba(255,255,255,.06);border:1px solid #333;color:#998;border-radius:4px;padding:5px 11px;font-size:.78em;cursor:pointer;font-family:monospace}
+#introOv{position:fixed;inset:0;z-index:80;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(0,0,0,.85)}
+.introCard{max-width:440px;width:100%;background:#0d0e11;border:1px solid #2a2c33;border-top:2px solid #d4a24e;border-radius:14px;padding:26px 24px 22px;color:#e9e4da;box-shadow:0 0 60px rgba(212,162,78,.12),0 20px 50px rgba(0,0,0,.8)}
+.introCard h1{margin:0 0 12px;font-size:1.5em;letter-spacing:3px;color:#e9e4da}
+.introCard .lede{color:#b6b1a6;font-size:.95em;line-height:1.65;margin-bottom:14px;font-style:italic}
+.introCard .rule{color:#cfc9bd;font-size:.88em;line-height:1.6;margin:8px 0}
+.introCard .rule b{color:#d4a24e;margin-right:6px}
+.introGo{width:100%;margin-top:18px;background:linear-gradient(180deg,#d4a24e,#b3823a);border:0;border-radius:6px;padding:13px;color:#1a1400;font-weight:800;font-size:1em;letter-spacing:2px;cursor:pointer;font-family:inherit}
+.introGo:active{transform:scale(.98)}
 </style></head><body>
 <div id="app">
 <div id="atmos"></div><div class="rain" id="rain"></div><div class="vig"></div>
 <button class="lang" onclick="toggleLang()">中/EN</button>
+<button class="help" onclick="showIntro()">?</button>
+<div id="introOv"><div class="introCard" id="introCard"></div></div>
 <div class="dossier">
   <div class="stamp" id="stamp">CONFIDENTIAL</div>
   <div class="case" id="case">CASE FILE</div>
@@ -153,5 +165,16 @@ function share(n,grid){const txt=`破绽 TELL · Case ${S.day}\n${S.title}\n${gr
 function pid(){let p=localStorage.getItem("tell_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("tell_pid",p);}return p;}
 function toggleLang(){lang=lang==="zh"?"en":"zh";if(!done)load();}
 document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")send();});
+const IT={zh:{h:"破绽",lede:"审讯室的灯只照着一把椅子。嫌疑人就坐在那里——案卷里没写的细节，只有凶手知道。",
+ r:["每日一案，你是审讯官，自由提问。","嫌疑人会撒谎、绕圈、露馅——诱使TA说出“未公开的案情细节”。","抓到破绽后正式指控。问得越少，段位越高。"],go:"开始审讯"},
+ en:{h:"TELL",lede:"One lamp. One chair. The suspect knows details that never made the papers—details only the killer could know.",
+ r:["One case a day. You interrogate—ask anything.","The suspect lies, deflects, slips—bait them into revealing an unreleased detail.","Catch the tell, then accuse. Fewer questions, higher rank."],go:"Enter the Room"}};
+function showIntro(){const t=IT[lang];
+ document.getElementById("introCard").innerHTML=`<h1>${t.h}</h1><div class="lede">${t.lede}</div>`+
+  t.r.map(x=>`<div class="rule"><b>◆</b>${x}</div>`).join("")+
+  `<button class="introGo" onclick="closeIntro()">${t.go}</button>`;
+ document.getElementById("introOv").style.display="flex";}
+function closeIntro(){document.getElementById("introOv").style.display="none";localStorage.setItem("tell_intro_seen","1");}
 rain();load();
+if(!localStorage.getItem("tell_intro_seen"))showIntro();
 </script></body></html>

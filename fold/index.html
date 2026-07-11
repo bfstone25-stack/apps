@@ -49,9 +49,22 @@ h1 small{font-size:.42em;letter-spacing:3px;color:var(--gold);font-weight:600;di
 .stars{font-size:1.8em;margin:8px 0}
 .support{margin-top:26px;padding:12px;border:1px dashed var(--line);border-radius:12px;text-align:center;color:var(--dim);font-size:.78em;line-height:1.6}
 .support b{color:var(--gold)}
+/* intro overlay */
+#introOv{position:fixed;inset:0;z-index:50;display:none;align-items:center;justify-content:center;background:rgba(0,0,0,.78);padding:20px}
+#introOv.show{display:flex}
+.introCard{max-width:420px;width:100%;background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:28px 26px;text-align:center;box-shadow:0 20px 60px rgba(0,0,0,.5)}
+.introCard h2{margin:0;font-size:1.7em;letter-spacing:6px;color:var(--gold)}
+.introCard .sub{color:var(--dim);font-size:.86em;margin:8px 0 18px;line-height:1.5}
+.introRules{text-align:left;font-size:.88em;line-height:1.7;margin:0 0 14px;color:var(--txt)}
+.introRules div{margin:6px 0}
+.introRules .dm{color:var(--gold);margin-right:6px}
+.introFine{color:#5b6070;font-size:.74em;margin-bottom:18px}
+.introBtn{width:100%;background:linear-gradient(180deg,#e6bd63,#d09a3c);border:0;color:#2a1c04;font-weight:700;border-radius:12px;padding:13px;font-size:1em;cursor:pointer}
+.introBtn:active{transform:scale(.97)}
 </style></head><body>
 <div id="app">
-  <div class="top"><h1>归一<small>FOLD</small></h1><button class="lang" onclick="toggleLang()">中/EN</button></div>
+  <div class="top"><h1>归一<small>FOLD</small></h1><div style="display:flex;gap:8px"><button class="lang" onclick="openIntro()" style="width:34px;padding:5px 0">?</button><button class="lang" onclick="toggleLang()">中/EN</button></div></div>
+  <div id="introOv"><div class="introCard" id="introCard"></div></div>
   <div class="lvlname" id="lvlname"></div>
   <div class="hud"><div class="goal" id="goal"></div><div class="moves" id="moves"></div></div>
   <div id="boardWrap" style="position:relative"><div id="board"></div>
@@ -217,4 +230,25 @@ bw.addEventListener('touchend',e=>{if(sx==null)return;const dx=e.changedTouches[
  if(Math.abs(dx)>Math.abs(dy))move(0,dx>0?1:-1);else move(dy>0?1:-1,0);sx=null},{passive:true});
 window.addEventListener('resize',()=>{layout();render();});
 fetch('levels.json').then(r=>r.json()).then(d=>{if(Array.isArray(d)&&d.length){LEVELS=d;}}).catch(()=>{}).finally(()=>load(Math.min(parseInt(localStorage.getItem('fold_cur')||'0')||0, LEVELS.length-1)));
+
+/* ---- intro overlay ---- */
+const INTRO_T={
+  zh:{t:'归一',s:'一款关于"合而为一"的禅意谜题',r:['滑动方向键，所有数字块一起滑动','相同数字相撞即合并翻倍','把全部数字归为一块、恰好等于目标数，即为归一。步数越少越接近"道"'],f:'51关精选 + 150关无限模式',b:'入局'},
+  en:{t:'FOLD',s:'A zen puzzle of becoming one',r:['Swipe/arrow keys move ALL tiles together','Equal tiles merge and double on collision','Fold everything into ONE tile equal to the target. Fewer moves, closer to the Way'],f:'51 curated + 150 endless levels',b:'Begin'}
+};
+function openIntro(){
+  const t=INTRO_T[lang]||INTRO_T.zh;
+  document.getElementById('introCard').innerHTML=
+    `<h2>${t.t}<small style="display:block;font-size:.4em;letter-spacing:3px;margin-top:4px;color:var(--dim)">${lang==='zh'?'FOLD':'归一'}</small></h2>`+
+    `<div class="sub">${t.s}</div>`+
+    `<div class="introRules">${t.r.map(x=>`<div><span class="dm">◆</span>${x}</div>`).join('')}</div>`+
+    `<div class="introFine">${t.f}</div>`+
+    `<button class="introBtn" onclick="closeIntro()">${t.b}</button>`;
+  document.getElementById('introOv').classList.add('show');
+}
+function closeIntro(){
+  document.getElementById('introOv').classList.remove('show');
+  try{localStorage.setItem('fold_intro_seen','1');}catch(e){}
+}
+try{ if(!localStorage.getItem('fold_intro_seen')) openIntro(); }catch(e){}
 </script></body></html>
