@@ -1,6 +1,7 @@
 <!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
 <title>归一 · FOLD</title>
 <link rel="manifest" href="manifest.json">
+<script src="config.js"></script>
 <meta name="theme-color" content="#12141a">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
@@ -192,9 +193,43 @@ function checkWin(){
      <div class="btns" style="margin-top:22px">
        <button class="btn" onclick="load(${L})">${tr().retry}</button>
        ${next?`<button class="btn gold" onclick="load(${L+1})">${tr().next} →</button>`:''}</div>
-     <button class="btn" style="margin-top:12px;max-width:200px" onclick="share(${stars},${moves})">🔗 ${tr().share}</button>`;
+     <button class="btn" style="margin-top:12px;max-width:200px" onclick="share(${stars},${moves})">🔗 ${tr().share}</button>
+     ${fbHTML()}`;
    renderLevels();
  }
+}
+/* ---- lightweight feedback ---- */
+function fbPid(){try{let p=localStorage.getItem('fold_pid');if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem('fold_pid',p);}return p;}catch(e){return 'anon';}}
+function fbSend(score,note){try{fetch(window.APP_API+'/scout/api/game_feedback',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({game:'fold',score:score,note:note||'',pid:fbPid()})}).catch(()=>{});}catch(e){}}
+function fbHTML(){
+ try{
+  if(typeof window.APP_API==='undefined'||!window.APP_API) return '';
+  const today=new Date().toISOString().slice(0,10);
+  if(localStorage.getItem('fold_fb_last')===today) return '';
+  const zh=lang==='zh';
+  return `<div id="fbRow" style="margin-top:16px;font-size:.85em;color:var(--dim,#c9b78a)">
+    <span>${zh?'好玩吗?':'Fun?'}</span>
+    ${[['😍',3],['😐',2],['🥱',1]].map(([e,s])=>`<button onclick="fbPick(${s})" style="background:none;border:none;font-size:1.4em;cursor:pointer;padding:2px 6px">${e}</button>`).join('')}
+  </div>`;
+ }catch(e){return '';}
+}
+function fbPick(score){
+ try{localStorage.setItem('fold_fb_last',new Date().toISOString().slice(0,10));}catch(e){}
+ fbSend(score,'');
+ const zh=lang==='zh', row=document.getElementById('fbRow');
+ if(!row) return;
+ row.innerHTML=`<div style="color:#c9b78a">${zh?'谢谢!':'Thanks!'}</div>
+   <div style="margin-top:8px;display:flex;gap:6px;justify-content:center;opacity:0;transition:opacity .6s" id="fbNote">
+     <input id="fbNoteIn" maxlength="200" placeholder="${zh?'一句话建议(可选)':'One-line suggestion (optional)'}" style="background:#1a1d26;border:1px solid var(--line,#3a3626);color:#e8dcc0;border-radius:14px;padding:5px 10px;font-size:.9em;width:180px">
+     <button class="btn" style="padding:5px 12px;font-size:.85em;max-width:70px" onclick="fbNoteSend(${score})">${zh?'发送':'Send'}</button>
+   </div>`;
+ requestAnimationFrame(()=>{const n=document.getElementById('fbNote');if(n)n.style.opacity='1';});
+}
+function fbNoteSend(score){
+ const inp=document.getElementById('fbNoteIn'), v=inp?inp.value.trim():'';
+ if(v) fbSend(score,v);
+ const row=document.getElementById('fbRow'), zh=lang==='zh';
+ if(row) row.innerHTML=`<div style="color:#c9b78a">${zh?'谢谢!':'Thanks!'}</div>`;
 }
 function undo(){ if(done||!hist.length) return; const s=JSON.parse(hist.pop());
  tiles=s.map(o=>({...o,merged:false,spawned:false})); moves=Math.max(0,moves-1); render(); syncText(); }

@@ -53,6 +53,14 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:'Georgia','Songti SC'
 .grid{font-size:1.5em;letter-spacing:3px;margin:14px 0}
 .share{background:#d4a24e;border:0;color:#1a1400;border-radius:5px;padding:12px 26px;font-weight:800;cursor:pointer;font-size:1em;letter-spacing:1px}
 .rev{color:#b6b1a6;font-size:.92em;line-height:1.6;margin:6px 0;max-width:360px}
+/* 反馈 feedback */
+.fb{margin-top:18px;padding-top:14px;border-top:1px solid rgba(212,162,78,.25);width:100%;max-width:300px}
+.fbq{color:#877f72;font-size:.82em;letter-spacing:1px;margin-bottom:8px}
+.fbrow{display:flex;justify-content:center;gap:14px;align-items:center}
+.fbe{background:rgba(255,255,255,.05);border:1px solid #33353d;border-radius:6px;padding:7px 13px;font-size:1.25em;cursor:pointer;transition:transform .1s,border-color .1s}
+.fbe:hover,.fbe:active{border-color:#d4a24e;transform:scale(1.1)}
+.fbin{flex:1;background:#15161a;border:1px solid #33353d;border-radius:5px;padding:8px 10px;color:#e9e4da;font-size:.85em;font-family:inherit;outline:none}
+.fbin:focus{border-color:#d4a24e}
 .back{position:absolute;top:12px;left:12px;z-index:8;background:rgba(255,255,255,.06);border:1px solid #333;color:#998;border-radius:4px;padding:5px 11px;font-size:.78em;cursor:pointer;font-family:monospace}
 /* 序幕 intro */
 .help{position:absolute;top:12px;right:88px;z-index:30;background:rgba(255,255,255,.06);border:1px solid #333;color:#998;border-radius:4px;padding:5px 11px;font-size:.78em;cursor:pointer;font-family:monospace}
@@ -161,7 +169,27 @@ async function accuse(id){done=true;
   <div class="rev">${tr().truth(r.culprit_name)}<br><span style="font-size:.9em;color:#8a8478">${r.reveal}</span></div>
   ${r.correct?`<div style="color:#b6b1a6;margin-top:6px">${tr().winsub(qUsed,pct)}</div><div class="grid">${grid}</div>
   <button class="share" onclick="share(${qUsed},'${grid}')">${tr().share}</button>`:
-  `<div class="grid">${grid}</div><div style="color:#877f72;font-size:.85em">${lang==="zh"?"明天，新的案子。":"Tomorrow, a new case."}</div>`}`;}
+  `<div class="grid">${grid}</div><div style="color:#877f72;font-size:.85em">${lang==="zh"?"明天，新的案子。":"Tomorrow, a new case."}</div>`}${fbHtml()}`;}
+// ── 游戏反馈 game feedback ──
+function fbHtml(){
+ if(!window.APP_API)return"";
+ const today=new Date().toISOString().slice(0,10);
+ if(localStorage.getItem("tell_fb_last")===today)return"";
+ return `<div class="fb" id="fb"><div class="fbq">${lang==="zh"?"今天这案子怎么样？":"How was the case?"}</div>
+  <div class="fbrow">${[["😍",3],["😐",2],["🥱",1]].map(([e,s])=>`<button class="fbe" onclick="fbPick(${s})">${e}</button>`).join("")}</div></div>`;}
+function fbPick(score){
+ const today=new Date().toISOString().slice(0,10);localStorage.setItem("tell_fb_last",today);
+ window.__fbScore=score;
+ const el=document.getElementById("fb");if(!el)return;
+ el.innerHTML=`<div class="fbq" style="color:#d4a24e">${lang==="zh"?"谢谢！":"Thanks!"}</div>
+  <div class="fbrow"><input class="fbin" id="fbNote" maxlength="200" placeholder="${lang==="zh"?"想说一句？（可选）":"One line? (optional)"}"><button class="fbe" style="font-size:.9em;color:#d4a24e" onclick="fbSend()">➤</button></div>`;
+ fbPost(score,"");
+ document.getElementById("fbNote").addEventListener("keydown",e=>{if(e.key==="Enter")fbSend();});}
+function fbSend(){const el=document.getElementById("fbNote");const note=el?el.value.trim():"";
+ if(note)fbPost(window.__fbScore,note);
+ const f=document.getElementById("fb");if(f)f.innerHTML=`<div class="fbq" style="color:#d4a24e">${lang==="zh"?"已收到，明晚见。":"Noted. See you tomorrow night."}</div>`;}
+function fbPost(score,note){try{fetch(window.APP_API+"/scout/api/game_feedback",{method:"POST",headers:{"Content-Type":"application/json"},
+ body:JSON.stringify({game:"tell",score:score,note:note,pid:pid()})}).catch(()=>{});}catch(e){}}
 function share(n,grid){const txt=`破绽 TELL · Case ${S.day}\n${S.title}\n${grid}  ${lang==="zh"?n+"问破案":n+" questions"}\n${location.href.split("?")[0]}`;
  navigator.clipboard.writeText(txt);alert(tr().copied);}
 function pid(){let p=localStorage.getItem("tell_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("tell_pid",p);}return p;}

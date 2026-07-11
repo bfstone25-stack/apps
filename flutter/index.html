@@ -93,10 +93,43 @@ html,body{margin:0;height:100%;overflow:hidden;font-family:-apple-system,'PingFa
 .plg-btn:active{transform:scale(.95)}
 .plg-card.fast .plg-star,.plg-card.fast .plg-p,.plg-card.fast .plg-btn{animation-delay:0s;animation-duration:.4s}
 .help{position:absolute;top:12px;right:88px;z-index:30;width:44px;height:44px;background:rgba(255,255,255,.55);border:0;border-radius:50%;font-size:.85em;cursor:pointer;backdrop-filter:blur(6px);color:#a85f7e;font-weight:800}
+
+/* ---------- 反馈 Feedback ---------- */
+.fbbtn{position:absolute;top:12px;right:138px;z-index:30;width:44px;height:44px;background:rgba(255,255,255,.55);border:0;border-radius:50%;font-size:1.05em;cursor:pointer;backdrop-filter:blur(6px);color:#c9527e}
+#fbOv{position:fixed;inset:0;z-index:70;display:none;align-items:center;justify-content:center;padding:22px;background:rgba(60,35,50,.35);backdrop-filter:blur(4px)}
+#fbOv.show{display:flex}
+.fb-card{width:100%;max-width:340px;border-radius:20px;padding:24px 22px 20px;text-align:center;position:relative;
+  background:linear-gradient(160deg,#fff4f0,#ffe8ee 60%,#fdeee4);
+  border:1px solid rgba(233,180,190,.55);box-shadow:0 14px 44px rgba(180,110,140,.3)}
+.fb-x{position:absolute;top:8px;right:8px;width:36px;height:36px;border:0;border-radius:50%;background:transparent;color:#b98a9c;font-size:1.1em;cursor:pointer}
+.fb-q{font-weight:800;color:#b0577e;font-size:1.02em;margin-bottom:14px;letter-spacing:.5px}
+.fb-emos{display:flex;justify-content:center;gap:18px;margin-bottom:14px}
+.fb-emo{font-size:2em;background:rgba(255,255,255,.65);border:2px solid transparent;border-radius:50%;width:58px;height:58px;cursor:pointer;transition:transform .15s,border-color .15s}
+.fb-emo:active{transform:scale(.9)}
+.fb-emo.sel{border-color:#e087ac;background:#fff;box-shadow:0 4px 14px rgba(224,135,172,.35)}
+.fb-note{width:100%;border:1.5px solid #f0cfda;border-radius:14px;padding:10px 12px;font-size:.9em;font-family:inherit;outline:none;background:rgba(255,255,255,.8);resize:none;color:#3a2b33}
+.fb-note:focus{border-color:#e087ac}
+.fb-send{margin-top:12px;padding:10px 34px;border:0;border-radius:22px;cursor:pointer;font-weight:700;letter-spacing:1px;color:#fff;
+  background:linear-gradient(135deg,#eda9bd,#e087ac);box-shadow:0 5px 16px rgba(224,135,172,.4)}
+.fb-send:disabled{opacity:.45}
+.fb-done{color:#b0577e;font-weight:800;font-size:1.15em;padding:26px 0;animation:pop .4s cubic-bezier(.2,1.4,.4,1)}
+#fbBar{position:fixed;left:50%;bottom:-90px;transform:translateX(-50%);z-index:65;width:calc(100% - 32px);max-width:420px;
+  border-radius:18px;padding:10px 14px;display:flex;align-items:center;gap:10px;
+  background:linear-gradient(150deg,#fff4f0,#ffe8ee);border:1px solid rgba(233,180,190,.55);
+  box-shadow:0 10px 30px rgba(180,110,140,.35);transition:bottom .6s cubic-bezier(.22,1,.36,1)}
+#fbBar.show{bottom:16px}
+#fbBar .fb-q{margin:0;flex:1;text-align:left;font-size:.88em}
+#fbBar .fb-emo{width:42px;height:42px;font-size:1.35em}
 </style></head><body>
 <div id="app">
 <button class="lang" onclick="toggleLang()">中/EN</button>
 <button class="help" onclick="showPrologue()" title="Prologue">?</button>
+<button class="fbbtn" id="fbBtn" onclick="openFb()" title="Feedback" style="display:none">♡</button>
+
+<div id="fbOv" onclick="if(event.target===this)closeFb()">
+  <div class="fb-card" id="fbCard"></div>
+</div>
+<div id="fbBar"></div>
 
 <div id="prologueOv">
   <div class="plg-card" id="plgCard"></div>
@@ -252,6 +285,7 @@ async function say(){
   document.getElementById("mood").textContent=r.mood||"💗";
   updateAff(true);typeLine(r.reply);
   if(aff>prev)floatHeart();
+  if(tierOf(aff)>tierOf(prev))maybeFbBar();
   if(r.milestone)celebrate(r.milestone);
   save();
  }catch(e){typeLine(lang==="zh"?"（信号断了…再说一次？）":"(connection lost… try again?)");}
@@ -272,10 +306,61 @@ function goSelect(){document.getElementById("game").style.display="none";documen
 function pid(){let p=localStorage.getItem("flutter_pid");if(!p){p=Math.random().toString(36).slice(2)+Date.now().toString(36);localStorage.setItem("flutter_pid",p);}return p;}
 function toggleLang(){lang=lang==="zh"?"en":"zh";
  if(document.getElementById("prologueOv").classList.contains("show"))showPrologue();
+ if(document.getElementById("fbOv").classList.contains("show"))openFb();
  if(route){renderChips();document.getElementById("afflab").textContent=tr().aff;document.getElementById("inp").placeholder=tr().ph;document.getElementById("send").textContent=tr().send;}else boot();}
 document.getElementById("inp").addEventListener("keydown",e=>{if(e.key==="Enter")say();});
 // 软键盘弹出时保证输入条与对话框可见
 document.getElementById("inp").addEventListener("focus",()=>{setTimeout(()=>{
  document.querySelector(".dbox").scrollIntoView({block:"end",behavior:"smooth"});},300);});
+/* ---------- 反馈 Feedback ---------- */
+const FBT={zh:{q:"喜欢和他聊天吗？",ph:"想对制作人说…（可选）",send:"发送 ♡",done:"收到啦♡"},
+ en:{q:"Enjoying him?",ph:"A word for the makers… (optional)",send:"Send ♡",done:"Got it ♡"}};
+let fbScore=0;
+if(API)document.getElementById("fbBtn").style.display="";
+function tierOf(a){return a>=15?3:a>=8?2:a>=3?1:0;}
+function fbEmos(sel,fn){return [["😍",3],["😐",2],["🥱",1]].map(([e,s])=>
+ `<button class="fb-emo${sel===s?" sel":""}" onclick="${fn}(${s})">${e}</button>`).join("");}
+function openFb(){
+ if(!API)return;fbScore=0;
+ const t=FBT[lang];
+ document.getElementById("fbCard").innerHTML=`<button class="fb-x" onclick="closeFb()">✕</button>
+  <div class="fb-q">${t.q}</div>
+  <div class="fb-emos" id="fbEmos">${fbEmos(0,"pickFb")}</div>
+  <textarea class="fb-note" id="fbNote" rows="2" placeholder="${t.ph}"></textarea>
+  <button class="fb-send" id="fbSend" onclick="sendFb()" disabled>${t.send}</button>`;
+ document.getElementById("fbOv").classList.add("show");
+}
+function closeFb(){document.getElementById("fbOv").classList.remove("show");}
+function pickFb(s){fbScore=s;
+ document.getElementById("fbEmos").innerHTML=fbEmos(s,"pickFb");
+ document.getElementById("fbSend").disabled=false;}
+function postFb(score,note){
+ try{fetch(API+"/scout/api/game_feedback",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({game:"flutter",score:score,note:note||"",pid:pid()})}).catch(()=>{});}catch(e){}
+}
+function sendFb(){
+ if(!fbScore)return;
+ postFb(fbScore,(document.getElementById("fbNote")||{}).value.trim());
+ document.getElementById("fbCard").innerHTML=`<div class="fb-done">${FBT[lang].done}</div>`;
+ setTimeout(closeFb,1200);
+}
+function maybeFbBar(){
+ if(!API)return;
+ const today=new Date().toISOString().slice(0,10);
+ if(localStorage.getItem("flutter_fb_last")===today)return;
+ localStorage.setItem("flutter_fb_last",today);
+ setTimeout(()=>{
+  const bar=document.getElementById("fbBar"),t=FBT[lang];
+  bar.innerHTML=`<div class="fb-q">${t.q}</div>${fbEmos(0,"pickFbBar")}
+   <button class="fb-x" style="position:static" onclick="hideFbBar()">✕</button>`;
+  bar.classList.add("show");
+ },2000);
+}
+function hideFbBar(){document.getElementById("fbBar").classList.remove("show");}
+function pickFbBar(s){
+ postFb(s,"");
+ document.getElementById("fbBar").innerHTML=`<div class="fb-q" style="text-align:center">${FBT[lang].done}</div>`;
+ setTimeout(hideFbBar,1400);
+}
 boot();
 </script></body></html>

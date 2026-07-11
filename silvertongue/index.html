@@ -458,15 +458,49 @@ async function win(n){
  const b=document.getElementById("banner");b.style.display="flex";
  b.innerHTML=`<h2 style="color:#f0cd88">${tr().win}</h2><div style="color:#c9b48f">${tr().winsub(n,pct)}</div>
    <div class="grid">${grid}</div><div style="color:#8a7860;font-size:.85em">${tr().tomorrow}</div>
-   <button class="share" onclick="share(${n},'${grid}')">${tr().share}</button>`;
+   <button class="share" onclick="share(${n},'${grid}')">${tr().share}</button>${fbHTML()}`;
 }
 function lose(){
  showBubble(boss,tr().loseLine,{gray:true,ttl:3500});
  loseSound();
  setTimeout(()=>{exitDialog();
   const b=document.getElementById("banner");b.style.display="flex";
-  b.innerHTML=`<h2 style="color:#b0684e">${tr().lost}</h2><div style="color:#8a7860">${tr().lostsub}</div>`;
+  b.innerHTML=`<h2 style="color:#b0684e">${tr().lost}</h2><div style="color:#8a7860">${tr().lostsub}</div>${fbHTML()}`;
  },1800);
+}
+/* ============ 游戏反馈（每日一次，fire-and-forget） ============ */
+function fbHTML(){
+ if(!API)return"";
+ if(localStorage.getItem("st_fb_last")===new Date().toISOString().slice(0,10))return"";
+ const q=lang==="zh"?"今天这局怎么样?":"How was today's duel?";
+ return `<div id="fbBox" style="margin-top:16px;padding:10px 16px;border:1px solid #5a4a3a;border-radius:12px;background:rgba(240,205,136,.06)">
+  <span style="color:#c9b48f;font-size:.9em;margin-right:8px">${q}</span>
+  <button onclick="sendFb(3)" style="background:none;border:none;font-size:1.4em;cursor:pointer">😍</button>
+  <button onclick="sendFb(2)" style="background:none;border:none;font-size:1.4em;cursor:pointer">😐</button>
+  <button onclick="sendFb(1)" style="background:none;border:none;font-size:1.4em;cursor:pointer">🥱</button>
+ </div>`;
+}
+function postFb(score,note){
+ try{fetch(API+"/scout/api/game_feedback",{method:"POST",headers:{"Content-Type":"application/json"},
+  body:JSON.stringify({game:"silvertongue",score:score,note:note||"",pid:pid()})}).catch(()=>{});}catch(e){}
+}
+function sendFb(score){
+ localStorage.setItem("st_fb_last",new Date().toISOString().slice(0,10));
+ postFb(score,"");
+ const box=document.getElementById("fbBox");if(!box)return;
+ const thx=lang==="zh"?"谢谢!":"Thanks!";
+ const ph=lang==="zh"?"想说一句?(可选)":"One more thought? (optional)";
+ box.innerHTML=`<span style="color:#f0cd88;font-size:.9em">${thx}</span>
+  <input id="fbNote" maxlength="200" placeholder="${ph}" style="margin-left:8px;background:rgba(255,255,255,.08);border:1px solid #5a4a3a;border-radius:8px;color:#f5f0e0;padding:5px 9px;font-size:.85em;width:190px"
+   onkeydown="if(event.key==='Enter')sendFbNote(${score})">
+  <button onclick="sendFbNote(${score})" style="margin-left:6px;background:#5a4a3a;border:none;border-radius:8px;color:#f0cd88;padding:5px 11px;cursor:pointer;font-size:.85em">${lang==="zh"?"发送":"Send"}</button>`;
+ const inp=document.getElementById("fbNote");if(inp)inp.focus();
+}
+function sendFbNote(score){
+ const inp=document.getElementById("fbNote");const note=inp?inp.value.trim():"";
+ if(note)postFb(score,note);
+ const box=document.getElementById("fbBox");
+ if(box)box.innerHTML=`<span style="color:#f0cd88;font-size:.9em">${lang==="zh"?"谢谢!":"Thanks!"} 🙏</span>`;
 }
 function share(n,grid){const txt=`舌战 Silvertongue · Day ${S.day}\n${S.goal}\n${grid}  ${lang==="zh"?n+"句":n+" lines"}\n${location.href.split("?")[0]}`;
  navigator.clipboard.writeText(txt);alert(tr().copied);}
