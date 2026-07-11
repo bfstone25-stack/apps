@@ -483,4 +483,25 @@ if(!localStorage.getItem("st_intro_seen"))showIntro();
 
 load();fit();requestAnimationFrame(frame);
 setTimeout(fit,100);
-</script></body></html>
+</script><style>
+#tickbar{position:fixed;left:0;right:0;bottom:0;z-index:60;background:rgba(20,15,8,.88);backdrop-filter:blur(8px);border-top:1px solid rgba(224,169,78,.35);overflow:hidden;height:30px;pointer-events:none}
+#tick{display:inline-block;white-space:nowrap;line-height:30px;font-size:.82em;color:#d8c9a8;animation:tk 28s linear infinite;padding-left:100vw}
+#tick b{color:#e0a94e}
+@keyframes tk{to{transform:translateX(-100%)}}
+</style>
+<div id="tickbar"><span id="tick"></span></div>
+<script>
+(function(){
+  const TIPS={
+    zh:["<b>↑↓←→ / WASD</b> 移动","找到头顶 <b>金色 !</b> 的人","走到TA身边按 <b>空格</b> 开聊","<b>真诚 · 共情 · 讲理</b> 才有效","<b>贿赂和威胁必败</b>","轮次越少越体面","手机用右下角 <b>方向盘</b> 走动","咖啡店和长椅的人也能聊两句"],
+    en:["Move with <b>arrows / WASD</b>","Find the one with the <b>gold !</b>","Stand close, press <b>Space</b> to talk","<b>Sincerity · empathy · logic</b> win","<b>Bribes & threats always fail</b>","Fewer turns, more style","On mobile use the <b>d-pad</b>","Cafe & bench folks chat too"]};
+  let cur="";
+  function refresh(){
+    const L=(typeof lang!=="undefined"&&String(lang).startsWith("en"))?"en":(typeof lang!=="undefined"&&lang==="zh")?"zh":(navigator.language.startsWith("zh")?"zh":"en");
+    if(L===cur)return; cur=L;
+    document.getElementById("tick").innerHTML=TIPS[L].join('&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;')+ '&nbsp;&nbsp;&nbsp;◆&nbsp;&nbsp;&nbsp;';
+  }
+  refresh(); setInterval(refresh,1200);
+})();
+</script>
+</body></html>
