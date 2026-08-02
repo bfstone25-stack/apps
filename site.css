@@ -157,7 +157,8 @@ h2 {
 }
 .panel {
   border: 1px solid var(--line);
-  border-radius: 22px;
+  border-left-color: color-mix(in srgb, var(--accent, var(--fire)) 55%, var(--line));
+  border-radius: 0;
   padding: 30px;
   background: linear-gradient(
     145deg,
@@ -198,7 +199,7 @@ h2 {
   color: var(--accent);
   display: grid;
   place-items: center;
-  border-radius: 15px;
+  border-radius: 2px;
   font-size: 22px;
 }
 .product h3 {
@@ -240,9 +241,14 @@ h2 {
   min-height: 340px;
   padding: 30px;
   border: 1px solid color-mix(in srgb, var(--accent) 30%, var(--line));
-  border-radius: 26px;
+  border-radius: 0;
   background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--accent) 14%, transparent), transparent 46%), #0e1118;
   overflow: hidden;
+  transition: border-color 0.35s ease, background 0.35s ease;
+}
+.world:hover {
+  border-color: color-mix(in srgb, var(--accent) 65%, var(--line));
+  background: radial-gradient(circle at 100% 0, color-mix(in srgb, var(--accent) 22%, transparent), transparent 52%), #0b0e14;
 }
 .world:after {
   content: "";
@@ -380,7 +386,7 @@ h2 {
   margin: 40px 0 100px;
   padding: 50px;
   border: 1px solid var(--line);
-  border-radius: 28px;
+  border-radius: 0;
   background: linear-gradient(135deg, rgba(255, 92, 53, 0.14), transparent 65%);
 }
 .cta p {
@@ -390,7 +396,7 @@ h2 {
 .btn {
   display: inline-block;
   padding: 13px 19px;
-  border-radius: 99px;
+  border-radius: 2px;
   background: var(--ink);
   color: var(--bg);
   font-weight: 750;
