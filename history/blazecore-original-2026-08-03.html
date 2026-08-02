@@ -1,0 +1,90 @@
+<!DOCTYPE html><html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>BlazeCore — AI Studio</title>
+<meta name="description" content="BlazeCore is an independent AI studio building a suite of consumer applications powered by fine-tuned language models.">
+<style>
+  :root{
+    --bg:#0a0a0c; --bg2:#111015; --ink:#f4f2ef; --dim:#9a938c;
+    --flame1:#ff6a1a; --flame2:#ff9d2e; --flame3:#ffcf4a; --ember:#e0431a;
+    --card:#16151b; --line:#26232c;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{
+    background:var(--bg); color:var(--ink);
+    font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,"PingFang SC",sans-serif;
+    line-height:1.6; -webkit-font-smoothing:antialiased;
+    min-height:100vh; overflow-x:hidden;
+  }
+  .glow{
+    position:fixed; inset:0; z-index:0; pointer-events:none;
+    background:
+      radial-gradient(600px 400px at 50% -10%, rgba(255,106,26,.18), transparent 70%),
+      radial-gradient(500px 500px at 90% 110%, rgba(224,67,26,.12), transparent 70%);
+  }
+  .wrap{position:relative; z-index:1; max-width:1000px; margin:0 auto; padding:0 24px}
+  header{padding:80px 0 40px; text-align:center}
+  .logo{
+    font-size:clamp(48px,9vw,96px); font-weight:800; letter-spacing:-.03em;
+    background:linear-gradient(120deg,var(--flame3),var(--flame1) 45%,var(--ember));
+    -webkit-background-clip:text; background-clip:text; -webkit-text-fill-color:transparent;
+    line-height:1.05;
+  }
+  .logo .dev{ -webkit-text-fill-color:var(--dim); font-weight:400; font-size:.4em; vertical-align:middle;}
+  .tag{ color:var(--ink); font-size:clamp(18px,2.6vw,26px); font-weight:600; margin-top:18px}
+  .sub{ color:var(--dim); font-size:clamp(15px,1.8vw,18px); max-width:620px; margin:16px auto 0}
+  .flame-rule{ width:80px; height:3px; margin:44px auto 0; border-radius:3px;
+    background:linear-gradient(90deg,var(--flame1),var(--flame3));}
+  section{padding:56px 0}
+  h2{ font-size:14px; letter-spacing:.18em; text-transform:uppercase; color:var(--flame2); text-align:center; margin-bottom:32px}
+  .grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(210px,1fr)); gap:16px}
+  .card{
+    background:var(--card); border:1px solid var(--line); border-radius:14px; padding:22px;
+    transition:border-color .2s, transform .2s;
+  }
+  .card:hover{ border-color:var(--flame1); transform:translateY(-3px)}
+  .card .k{ font-size:16px; font-weight:700; color:var(--ink); margin-bottom:6px}
+  .card .d{ font-size:13.5px; color:var(--dim)}
+  .card .badge{ display:inline-block; margin-top:12px; font-size:11px; letter-spacing:.05em;
+    color:var(--flame3); border:1px solid rgba(255,157,46,.35); border-radius:20px; padding:2px 10px}
+  footer{ text-align:center; padding:60px 0 50px; color:var(--dim); font-size:14px; border-top:1px solid var(--line); margin-top:30px}
+  footer a{ color:var(--flame2); text-decoration:none}
+  footer a:hover{ text-decoration:underline}
+  .mono{ font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+</style>
+</head>
+<body>
+<div class="glow"></div>
+<div class="wrap">
+  <header>
+    <div class="logo">BlazeCore<span class="dev">.dev</span></div>
+    <div class="tag">Forging intelligence, one model at a time.</div>
+    <p class="sub">An independent AI studio building a suite of consumer applications
+       powered by fine-tuned open language models — across productivity, wellness, and interactive experiences.</p>
+    <div class="flame-rule"></div>
+  </header>
+  <section>
+    <h2>What we build</h2>
+    <div class="grid">
+      <div class="card"><div class="k">Everyday AI Tools</div><div class="d">Practical assistants for real-world tasks — writing, disputes, guidance.</div><span class="badge">In development</span></div>
+      <div class="card"><div class="k">Wellness &amp; Meaning</div><div class="d">Evidence-grounded companions for the harder moments of modern life.</div><span class="badge">In development</span></div>
+      <div class="card"><div class="k">Interactive Worlds</div><div class="d">Story-driven games with characters that actually understand you.</div><span class="badge">In development</span></div>
+      <div class="card"><div class="k">Bilingual by design</div><div class="d">Every product built natively for both English and Chinese audiences.</div><span class="badge">Core principle</span></div>
+    </div>
+  </section>
+  <section>
+    <h2>How we work</h2>
+    <div class="grid">
+      <div class="card"><div class="k">Fine-tuned, not generic</div><div class="d">Each product runs its own specialized model, trained on carefully curated data.</div></div>
+      <div class="card"><div class="k">Grounded in truth</div><div class="d">Factual domains use only verifiable sources — no fabricated information.</div></div>
+      <div class="card"><div class="k">Built to last</div><div class="d">Small, efficient models that respect users, privacy, and their attention.</div></div>
+    </div>
+  </section>
+  <footer>
+    <p><strong>BlazeCore</strong> — independent AI studio</p>
+    <p style="margin-top:8px">Get in touch: <a href="mailto:hello@blazecore.dev" class="mono">hello@blazecore.dev</a></p>
+    <p style="margin-top:8px;font-size:12.5px">© 2026 BlazeCore. All rights reserved.</p>
+  </footer>
+</div>
+</body></html>
