@@ -13,9 +13,9 @@
     body:before{content:"";position:fixed;inset:0;pointer-events:none;z-index:-2;background:radial-gradient(900px 600px at 85% -10%,rgba(255,92,53,.15),transparent 60%),radial-gradient(800px 520px at -10% 45%,rgba(92,225,230,.08),transparent 64%),linear-gradient(rgba(255,255,255,.018) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.018) 1px,transparent 1px);background-size:auto,auto,48px 48px,48px 48px}
     a{color:inherit;text-decoration:none}.shell{width:min(var(--max),calc(100% - 40px));margin:auto}
     nav{height:82px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line)}
-    .brand{display:flex;align-items:center}.brand img{display:block;width:215px;height:auto}
+    .brand{display:flex;align-items:center;gap:10px;font-size:16px;font-weight:850;letter-spacing:.12em}.brand img{display:block;width:25px;height:30px}.brand-name{color:var(--ink)}
     .navlinks{display:flex;gap:28px;color:var(--muted);font-size:14px}.navlinks a:hover{color:var(--ink)}
-    .hero{min-height:670px;display:grid;grid-template-columns:1.25fr .75fr;align-items:center;gap:70px;padding:85px 0 72px}
+    .hero{min-height:670px;display:grid;grid-template-columns:1.25fr .75fr;align-items:center;gap:70px;padding:85px 0 72px}.brand-hero{display:block;min-height:650px;padding:105px 0 78px;position:relative}.brand-stage{position:relative;margin:22px -8px 28px;isolation:isolate}.brand-title{position:relative;z-index:2;font-family:Arial Black,Helvetica Neue,Arial,sans-serif;font-size:clamp(72px,13.1vw,184px);font-weight:950;line-height:.78;letter-spacing:-.095em;max-width:none;margin:0;color:transparent;background:linear-gradient(180deg,#f7f2e8 0%,#f7f2e8 37%,#ffe9ae 43%,#ffb144 47%,#ff5c35 51%,#c92c25 54%,#f7f2e8 59%,#f7f2e8 100%);background-clip:text;-webkit-background-clip:text;filter:drop-shadow(0 16px 36px rgba(0,0,0,.35))}.brand-title:after{content:attr(data-title);position:absolute;inset:0;z-index:-1;color:transparent;-webkit-text-stroke:1px rgba(255,225,170,.12);transform:translateY(2px);filter:blur(5px)}.flame-through{position:absolute;z-index:3;left:-1.5%;top:34%;width:103%;height:40%;overflow:visible;pointer-events:none;mix-blend-mode:screen}.flame-through .heat-glow{fill:none;stroke:#ff4b2b;stroke-width:15;opacity:.17;filter:blur(13px)}.flame-through .heat-line{fill:none;stroke:url(#brandFire);stroke-width:2.4;stroke-linecap:round;opacity:.92}.flame-through .hot-core{fill:none;stroke:#fff0bc;stroke-width:.65;stroke-linecap:round;opacity:.82}.ember{position:absolute;z-index:4;width:4px;height:4px;border-radius:50%;background:var(--gold);box-shadow:0 0 12px var(--fire);opacity:.8}.ember.e1{left:17%;top:32%}.ember.e2{left:48%;top:60%;width:2px;height:2px}.ember.e3{right:8%;top:38%;width:3px;height:3px}.brand-subline{display:flex;align-items:end;justify-content:space-between;gap:45px;border-top:1px solid rgba(255,255,255,.13);padding-top:25px}.brand-subline h2{font-size:clamp(31px,4.3vw,56px);line-height:1;letter-spacing:-.045em;margin:0}.brand-subline .lede{margin:0;max-width:500px;font-size:17px}.brand-actions{margin-top:34px}
     .eyebrow{display:flex;align-items:center;gap:10px;color:var(--gold);font-size:12px;font-weight:800;letter-spacing:.2em;text-transform:uppercase}.eyebrow:before{content:"";width:34px;height:1px;background:var(--gold)}
     h1{font-size:clamp(57px,8.1vw,104px);line-height:.92;letter-spacing:-.065em;margin:26px 0 30px;max-width:850px}.heat{color:transparent;background:linear-gradient(100deg,var(--gold),var(--fire) 65%);background-clip:text;-webkit-background-clip:text}
     .lede{font-size:clamp(18px,2vw,23px);line-height:1.55;color:#b9bec8;max-width:650px;margin:0 0 38px}.actions{display:flex;gap:12px;flex-wrap:wrap}.btn{padding:14px 20px;border-radius:99px;border:1px solid var(--line);font-weight:750;font-size:14px;transition:.2s}.btn.primary{background:var(--ink);color:var(--bg);border-color:var(--ink)}.btn:hover{transform:translateY(-2px);border-color:#6a6f7b}
@@ -30,25 +30,31 @@
     .principles{display:grid;grid-template-columns:.8fr 1.2fr;border:1px solid var(--line);border-radius:28px;overflow:hidden;background:#0d1016}.manifesto{padding:50px;background:linear-gradient(145deg,rgba(255,92,53,.13),transparent 75%)}.manifesto h2{font-size:clamp(37px,5vw,62px);line-height:1;letter-spacing:-.05em;margin:13px 0 25px}.manifesto p{color:#b2b7c1;font-size:17px}.rules{padding:20px 44px}.rule{display:grid;grid-template-columns:48px 1fr;gap:12px;padding:29px 0;border-bottom:1px solid var(--line)}.rule:last-child{border:0}.num{color:var(--fire);font-family:ui-monospace,monospace}.rule h3{margin:0 0 6px;font-size:18px}.rule p{margin:0;color:var(--muted)}
     .closing{padding:90px 0 120px;text-align:center}.closing h2{font-size:clamp(45px,7vw,84px);letter-spacing:-.055em;line-height:1;margin:0 auto 25px;max-width:900px}.closing p{color:var(--muted);font-size:18px;margin-bottom:32px}
     footer{border-top:1px solid var(--line);padding:28px 0 45px;color:#737985;font-size:13px}.footrow{display:flex;justify-content:space-between;gap:20px;flex-wrap:wrap}
-    @media(max-width:880px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:75px}.signal{display:none}.proof{grid-template-columns:1fr}.proof div+div{border-left:0;border-top:1px solid var(--line);padding-left:0}.card,.card.wide{grid-column:span 6}.principles{grid-template-columns:1fr}.section-head{display:block}.navlinks{display:none}}
-    @media(max-width:580px){.shell{width:min(100% - 26px,var(--max))}nav{height:68px}.brand img{width:178px}h1{font-size:54px}.hero{padding:64px 0 52px}.card,.card.wide{grid-column:1/-1;min-height:285px}section{padding:78px 0}.manifesto,.rules{padding:30px 24px}.rule{grid-template-columns:38px 1fr}.closing{text-align:left}.actions .btn{width:100%;text-align:center}}
+    @media(max-width:880px){.hero{grid-template-columns:1fr;min-height:auto;padding-top:75px}.brand-hero{padding-top:90px}.brand-subline{align-items:start;flex-direction:column;gap:20px}.signal{display:none}.proof{grid-template-columns:1fr}.proof div+div{border-left:0;border-top:1px solid var(--line);padding-left:0}.card,.card.wide{grid-column:span 6}.principles{grid-template-columns:1fr}.section-head{display:block}.navlinks{display:none}}
+    @media(max-width:580px){.shell{width:min(100% - 26px,var(--max))}nav{height:68px}.brand img{width:22px;height:27px}.brand{font-size:14px}h1{font-size:54px}.hero{padding:64px 0 52px}.brand-hero{padding:80px 0 60px}.brand-title{font-size:17.5vw;letter-spacing:-.105em}.brand-stage{margin-bottom:23px}.flame-through{top:30%;height:48%}.card,.card.wide{grid-column:1/-1;min-height:285px}section{padding:78px 0}.manifesto,.rules{padding:30px 24px}.rule{grid-template-columns:38px 1fr}.closing{text-align:left}.actions .btn{width:100%;text-align:center}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important}.orbit,.core{animation:none}.card,.btn{transition:none}}
   </style>
 </head>
 <body>
   <header class="shell">
     <nav aria-label="Primary navigation">
-      <a class="brand" href="/" aria-label="BlazeCore home"><img src="/brand-wordmark.svg" alt="BlazeCore"></a>
+      <a class="brand" href="/" aria-label="BlazeCore home"><img src="/brand-symbol.svg" alt=""><span class="brand-name">BLAZECORE</span></a>
       <div class="navlinks"><a href="/products">Products</a><a href="/approach">How we build</a><a href="/about">Studio</a></div>
     </nav>
-    <div class="hero">
-      <div>
-        <div class="eyebrow">Independent AI product studio</div>
-        <h1>Intelligence for <span class="heat">real life.</span></h1>
-        <p class="lede">Focused AI products for difficult decisions, safer communication, practical care—and play that stays with you.</p>
-        <div class="actions"><a class="btn primary" href="#products">Explore the products ↓</a><a class="btn" href="https://apps.blazecore.dev/">Open app hub ↗</a></div>
+    <div class="hero brand-hero">
+      <div class="eyebrow">Independent AI product studio</div>
+      <div class="brand-stage">
+        <h1 class="brand-title" data-title="BLAZECORE">BLAZECORE</h1>
+        <svg class="flame-through" viewBox="0 0 1200 180" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="brandFire" x1="0" x2="1"><stop stop-color="#8f1f21"/><stop offset=".18" stop-color="#ff5c35"/><stop offset=".48" stop-color="#ffd46a"/><stop offset=".7" stop-color="#ff6b35"/><stop offset="1" stop-color="#7d161c"/></linearGradient></defs>
+          <path class="heat-glow" d="M0 110 C115 92 155 121 260 91 S440 48 535 88 S690 128 785 75 S960 45 1200 86"/>
+          <path class="heat-line" d="M0 110 C115 92 155 121 260 91 S440 48 535 88 S690 128 785 75 S960 45 1200 86"/>
+          <path class="hot-core" d="M0 108 C115 90 155 119 260 89 S440 46 535 86 S690 126 785 73 S960 43 1200 84"/>
+        </svg>
+        <i class="ember e1"></i><i class="ember e2"></i><i class="ember e3"></i>
       </div>
-      <div class="signal" aria-hidden="true"><div class="orbit"><i></i><i></i></div><div class="core"></div></div>
+      <div class="brand-subline"><h2>Intelligence for <span class="heat">real life.</span></h2><p class="lede">Focused AI systems across judgment, action, care, and imagination—different worlds connected by human context.</p></div>
+      <div class="actions brand-actions"><a class="btn primary" href="#products">Explore the constellation ↓</a><a class="btn" href="https://apps.blazecore.dev/">Open app hub ↗</a></div>
     </div>
     <div class="proof" aria-label="BlazeCore at a glance">
       <div><b>4</b><span>connected worlds</span></div><div><b>One core</b><span>human context</span></div><div><b>Always growing</b><span>new forms of useful intelligence</span></div>

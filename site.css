@@ -408,22 +408,26 @@ footer {
   flex-wrap: wrap;
 }
 .brand {
-  gap: 0;
-  font-size: 0;
-  letter-spacing: 0;
+  gap: 10px;
+  font-size: 16px;
+  font-weight: 850;
+  letter-spacing: 0.12em;
 }
 .brand img {
   display: block;
-  width: 215px;
-  height: auto;
+  width: 25px;
+  height: 30px;
 }
+.brand-name { color: var(--ink); }
 .mark {
   display: none;
 }
 @media (max-width: 720px) {
   .brand img {
-    width: 178px;
+    width: 22px;
+    height: 27px;
   }
+  .brand { font-size: 14px; }
   .navlinks {
     gap: 13px;
     font-size: 12px;
